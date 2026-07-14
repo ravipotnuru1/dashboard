@@ -1,0 +1,304 @@
+.social-page {
+  display: flex;
+  gap: 25px;
+  padding: 30px;
+  background: #f5f6f8;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.social-left {
+  width: 260px;
+}
+
+.profile-card,
+.friends-card,
+.photos-card,
+.create-post,
+.post-card {
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+  border-radius: 5px;
+}
+
+.profile-card {
+  text-align: center;
+  padding: 25px;
+}
+
+.profile-image {
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-card h2 {
+  font-size: 20px;
+  margin: 12px 0 4px;
+}
+
+.profile-card > p {
+  color: #999999;
+  font-size: 13px;
+}
+
+.profile-info {
+  text-align: left;
+  margin-top: 30px;
+  border-top: 1px solid #eeeeee;
+  padding-top: 20px;
+}
+
+.profile-info span {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.profile-info label {
+  display: block;
+  color: #999999;
+  font-size: 10px;
+  margin-top: 15px;
+}
+
+.profile-info p {
+  font-size: 12px;
+  color: #555555;
+  margin-top: 5px;
+}
+
+.friends-card,
+.photos-card {
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.friends-card h3,
+.photos-card h3 {
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+
+.friend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.friend img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+}
+
+.friend h4 {
+  font-size: 12px;
+  margin: 0;
+}
+
+.friend p {
+  font-size: 10px;
+  color: #999999;
+  margin: 3px 0 0;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+
+.photo-grid img {
+  width: 100%;
+  height: 60px;
+  border-radius: 5px;
+  object-fit: cover;
+}
+
+.social-feed {
+  width: 700px;
+}
+
+.create-post {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.create-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.create-top img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.create-top input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 12px;
+}
+
+.create-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.create-bottom button {
+  border: none;
+  background: #20a144;
+  color: white;
+  padding: 8px 25px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.create-bottom div {
+  display: flex;
+  gap: 15px;
+  color: #999999;
+}
+
+.post-card {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.post-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.post-user img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+
+.post-user h4 {
+  font-size: 13px;
+  margin: 0;
+}
+
+.post-user p {
+  color: #999999;
+  font-size: 10px;
+  margin-top: 4px;
+}
+
+.post-image-box {
+  position: relative;
+}
+
+.post-image-box img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.play-button {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-text {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #666666;
+}
+
+.post-actions {
+  display: flex;
+  gap: 25px;
+  padding: 15px 0;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.post-actions span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888888;
+  font-size: 12px;
+}
+
+.comment-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #eeeeee;
+  border-radius: 5px;
+  margin: 15px 0;
+  padding: 10px;
+  gap: 12px;
+}
+
+.comment-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+}
+
+.comment-input svg:last-child {
+  color: #20a144;
+}
+
+.comment {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.comment img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
+.comment h4 {
+  margin: 0;
+  font-size: 12px;
+}
+
+.comment p {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #666666;
+}
+
+@media (max-width: 900px) {
+  .social-page {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .social-left,
+  .social-feed {
+    width: 100%;
+  }
+
+  .post-image-box img {
+    height: 250px;
+  }
+}
