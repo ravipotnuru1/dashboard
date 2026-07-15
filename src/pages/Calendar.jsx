@@ -13,8 +13,7 @@ const initialEvents = [
   {
     id: 1,
     title: "Call Back Priscilla",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum risus egestas elementum erat elementum a est.",
+    description: "Call Back Priscilla",
     day: 1,
     start: "00:30",
     end: "01:30",
@@ -70,36 +69,9 @@ const initialEvents = [
 const monthDays = [
   { day: 30, muted: true },
   { day: 31, muted: true },
-  { day: 1 },
-  { day: 2 },
-  { day: 3 },
-  { day: 4 },
-  { day: 5 },
-  { day: 6 },
-  { day: 7 },
-  { day: 8 },
-  { day: 9 },
-  { day: 10 },
-  { day: 11 },
-  { day: 12 },
-  { day: 13 },
-  { day: 14 },
-  { day: 15 },
-  { day: 16 },
-  { day: 17 },
-  { day: 18 },
-  { day: 19 },
-  { day: 20 },
-  { day: 21 },
-  { day: 22 },
-  { day: 23 },
-  { day: 24 },
-  { day: 25 },
-  { day: 26 },
-  { day: 27 },
-  { day: 28 },
-  { day: 29 },
-  { day: 30 },
+  ...Array.from({ length: 30 }, (_, index) => ({
+    day: index + 1,
+  })),
   { day: 1, muted: true },
   { day: 2, muted: true },
   { day: 3, muted: true },
@@ -113,34 +85,6 @@ const weekDays = [
   { label: "FR", day: 10 },
   { label: "SA", day: 11 },
   { label: "SU", day: 12 },
-];
-
-const timeOptions = [
-  "00:00",
-  "00:30",
-  "01:00",
-  "01:30",
-  "02:00",
-  "02:30",
-  "03:00",
-  "03:30",
-  "04:00",
-  "04:30",
-  "05:00",
-  "05:30",
-  "06:00",
-  "06:30",
-  "07:00",
-  "07:30",
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
 ];
 
 const calendarColors = [
@@ -163,13 +107,10 @@ function Calendar() {
 
   const [showEventModal, setShowEventModal] = useState(false);
   const [showCalendarPanel, setShowCalendarPanel] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
-  const [calendarMenu, setCalendarMenu] = useState(null);
 
   const [eventForm, setEventForm] = useState({
     title: "",
@@ -204,6 +145,7 @@ function Calendar() {
   const openNewEvent = () => {
     resetEventForm();
     setEditingEvent(null);
+    setSelectedEvent(null);
     setShowEventModal(true);
   };
 
@@ -236,17 +178,20 @@ function Calendar() {
     setShowEventModal(false);
     setEditingEvent(null);
     setSelectedEvent(null);
+
     resetEventForm();
   };
 
   const openEditEvent = () => {
+    if (!selectedEvent) return;
+
     setEventForm({
-      title: selectedEvent.title,
-      description: selectedEvent.description,
-      day: selectedEvent.day,
-      start: selectedEvent.start,
-      end: selectedEvent.end,
-      type: selectedEvent.type,
+      title: selectedEvent.title || "",
+      description: selectedEvent.description || "",
+      day: selectedEvent.day || 12,
+      start: selectedEvent.start || "00:00",
+      end: selectedEvent.end || "00:00",
+      type: selectedEvent.type || "Important",
       allDay: selectedEvent.allDay ?? false,
       repeat: selectedEvent.repeat ?? false,
     });
@@ -257,8 +202,12 @@ function Calendar() {
   };
 
   const deleteEvent = () => {
+    if (!selectedEvent) return;
+
     setEvents((current) =>
-      current.filter((event) => event.id !== selectedEvent.id)
+      current.filter(
+        (event) => event.id !== selectedEvent.id
+      )
     );
 
     setDeleteModal(false);
@@ -290,7 +239,10 @@ function Calendar() {
       <div className="calendar-page-header">
         <h1>Calendar</h1>
 
-        <button className="calendar-add-event" onClick={openNewEvent}>
+        <button
+          className="calendar-add-event"
+          onClick={openNewEvent}
+        >
           + Add Event
         </button>
       </div>
@@ -300,62 +252,28 @@ function Calendar() {
           <div className="calendar-sidebar-title">
             <span>CALENDARS</span>
 
-            <button onClick={() => setShowCalendarPanel(true)}>+</button>
+            <button
+              onClick={() => setShowCalendarPanel(true)}
+            >
+              +
+            </button>
           </div>
 
           {calendars.map((calendar) => (
-            <div className="calendar-sidebar-item" key={calendar.name}>
+            <div
+              className="calendar-sidebar-item"
+              key={calendar.name}
+            >
               <span
                 className="calendar-check"
-                style={{ background: calendar.color }}
+                style={{
+                  background: calendar.color,
+                }}
               >
                 ✓
               </span>
 
               <span>{calendar.name}</span>
-
-              <button
-                className="calendar-three-dots"
-                onClick={() =>
-                  setCalendarMenu(
-                    calendarMenu === calendar.name ? null : calendar.name
-                  )
-                }
-              >
-                ⋮
-              </button>
-
-              {calendarMenu === calendar.name && (
-                <div className="calendar-options-menu">
-                  <button>◉ Display this Only</button>
-                  <button>⌁ Hide from List</button>
-                  <button>⚙ Settings</button>
-
-                  <div className="calendar-menu-divider" />
-
-                  <button className="calendar-delete-option">
-                    ♙ Delete Calendar
-                  </button>
-
-                  <div className="calendar-menu-colors">
-                    {calendarColors.map((color) => (
-                      <button
-                        key={color}
-                        style={{ background: color }}
-                        onClick={() => {
-                          setCalendars((current) =>
-                            current.map((item) =>
-                              item.name === calendar.name
-                                ? { ...item, color }
-                                : item
-                            )
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </aside>
@@ -368,7 +286,9 @@ function Calendar() {
                 <button>›</button>
               </div>
 
-              <button className="calendar-today">Today</button>
+              <button className="calendar-today">
+                Today
+              </button>
             </div>
 
             <h2>
@@ -379,7 +299,9 @@ function Calendar() {
               {["Month", "Week", "Day"].map((item) => (
                 <button
                   key={item}
-                  className={view === item ? "active" : ""}
+                  className={
+                    view === item ? "active" : ""
+                  }
                   onClick={() => setView(item)}
                 >
                   {item}
@@ -415,13 +337,17 @@ function Calendar() {
         <>
           <div
             className="calendar-overlay"
-            onClick={() => setShowCalendarPanel(false)}
+            onClick={() =>
+              setShowCalendarPanel(false)
+            }
           />
 
           <div className="new-calendar-panel">
             <button
               className="calendar-close"
-              onClick={() => setShowCalendarPanel(false)}
+              onClick={() =>
+                setShowCalendarPanel(false)
+              }
             >
               ×
             </button>
@@ -433,10 +359,10 @@ function Calendar() {
             <input
               placeholder="Personal"
               value={calendarForm.name}
-              onChange={(e) =>
+              onChange={(event) =>
                 setCalendarForm({
                   ...calendarForm,
-                  name: e.target.value,
+                  name: event.target.value,
                 })
               }
             />
@@ -446,10 +372,10 @@ function Calendar() {
             <textarea
               placeholder="Type something"
               value={calendarForm.description}
-              onChange={(e) =>
+              onChange={(event) =>
                 setCalendarForm({
                   ...calendarForm,
-                  description: e.target.value,
+                  description: event.target.value,
                 })
               }
             />
@@ -459,10 +385,13 @@ function Calendar() {
             <div className="new-calendar-colors">
               {calendarColors.map((color) => (
                 <button
+                  type="button"
                   key={color}
                   style={{ background: color }}
                   className={
-                    calendarForm.color === color ? "selected-color" : ""
+                    calendarForm.color === color
+                      ? "selected-color"
+                      : ""
                   }
                   onClick={() =>
                     setCalendarForm({
@@ -471,7 +400,9 @@ function Calendar() {
                     })
                   }
                 >
-                  {calendarForm.color === color && "✓"}
+                  {calendarForm.color === color
+                    ? "✓"
+                    : ""}
                 </button>
               ))}
             </div>
@@ -491,26 +422,28 @@ function Calendar() {
           <div className="new-event-modal">
             <button
               className="calendar-close"
-              onClick={() => {
-                setShowEventModal(false);
-                setShowDatePicker(false);
-                setShowTimePicker(false);
-              }}
+              onClick={() =>
+                setShowEventModal(false)
+              }
             >
               ×
             </button>
 
-            <h2>{editingEvent ? "Edit Event" : "New Event"}</h2>
+            <h2>
+              {editingEvent
+                ? "Edit Event"
+                : "New Event"}
+            </h2>
 
             <label>Title</label>
 
             <input
               placeholder="Sending order"
               value={eventForm.title}
-              onChange={(e) =>
+              onChange={(event) =>
                 setEventForm({
                   ...eventForm,
-                  title: e.target.value,
+                  title: event.target.value,
                 })
               }
             />
@@ -518,104 +451,87 @@ function Calendar() {
             <label>Description</label>
 
             <textarea
-              placeholder="Sending order #25789 Felecia Burke at 5:30"
+              placeholder="Type something"
               value={eventForm.description}
-              onChange={(e) =>
+              onChange={(event) =>
                 setEventForm({
                   ...eventForm,
-                  description: e.target.value,
+                  description: event.target.value,
                 })
               }
             />
 
-            <label>Time and Date</label>
+            <label>Day</label>
 
-            <div className="event-date-row">
-              <div className="event-picker-wrapper">
-                <button
-                  className="event-picker-button"
-                  onClick={() =>
-                    setShowTimePicker(!showTimePicker)
-                  }
+            <input
+              type="number"
+              min="1"
+              max="30"
+              value={eventForm.day}
+              onChange={(event) =>
+                setEventForm({
+                  ...eventForm,
+                  day: event.target.value,
+                })
+              }
+            />
+
+            <label>Start Time</label>
+
+            <input
+              type="time"
+              value={eventForm.start}
+              onChange={(event) =>
+                setEventForm({
+                  ...eventForm,
+                  start: event.target.value,
+                })
+              }
+            />
+
+            <label>End Time</label>
+
+            <input
+              type="time"
+              value={eventForm.end}
+              onChange={(event) =>
+                setEventForm({
+                  ...eventForm,
+                  end: event.target.value,
+                })
+              }
+            />
+
+            <label>Calendar</label>
+
+            <select
+              value={eventForm.type}
+              onChange={(event) =>
+                setEventForm({
+                  ...eventForm,
+                  type: event.target.value,
+                })
+              }
+            >
+              {calendars.map((calendar) => (
+                <option
+                  key={calendar.name}
+                  value={calendar.name}
                 >
-                  {eventForm.start}
-                </button>
-
-                {showTimePicker && (
-                  <div className="event-time-dropdown">
-                    {timeOptions.map((time) => (
-                      <button
-                        key={time}
-                        className={
-                          eventForm.start === time ? "active-time" : ""
-                        }
-                        onClick={() => {
-                          setEventForm({
-                            ...eventForm,
-                            start: time,
-                          });
-
-                          setShowTimePicker(false);
-                        }}
-                      >
-                        {eventForm.start === time && "✓ "}
-                        {time}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="event-picker-wrapper">
-                <button
-                  className="event-picker-button"
-                  onClick={() => setShowDatePicker(!showDatePicker)}
-                >
-                  {String(eventForm.day).padStart(2, "0")}.09.2020⌄
-                </button>
-
-                {showDatePicker && (
-                  <DatePicker
-                    selectedDay={eventForm.day}
-                    onSelect={(day) => {
-                      setEventForm({
-                        ...eventForm,
-                        day,
-                      });
-
-                      setShowDatePicker(false);
-                    }}
-                  />
-                )}
-              </div>
-
-              <span className="event-date-divider">—</span>
-
-              <input
-                type="time"
-                value={eventForm.end}
-                onChange={(e) =>
-                  setEventForm({
-                    ...eventForm,
-                    end: e.target.value,
-                  })
-                }
-              />
-
-              <button className="event-picker-button">
-                {String(eventForm.day).padStart(2, "0")}.09.2020⌄
-              </button>
-            </div>
+                  {calendar.name}
+                </option>
+              ))}
+            </select>
 
             <div className="event-checkbox-row">
               <label>
                 <input
                   type="checkbox"
                   checked={eventForm.allDay}
-                  onChange={(e) =>
+                  onChange={(event) =>
                     setEventForm({
                       ...eventForm,
-                      allDay: e.target.checked,
+                      allDay: event.target.checked,
                     })
                   }
                 />
@@ -627,10 +543,10 @@ function Calendar() {
                 <input
                   type="checkbox"
                   checked={eventForm.repeat}
-                  onChange={(e) =>
+                  onChange={(event) =>
                     setEventForm({
                       ...eventForm,
-                      repeat: e.target.checked,
+                      repeat: event.target.checked,
                     })
                   }
                 />
@@ -639,26 +555,11 @@ function Calendar() {
               </label>
             </div>
 
-            <label>Calendar</label>
-
-            <select
-              value={eventForm.type}
-              onChange={(e) =>
-                setEventForm({
-                  ...eventForm,
-                  type: e.target.value,
-                })
-              }
-            >
-              {calendars.map((calendar) => (
-                <option key={calendar.name} value={calendar.name}>
-                  {calendar.name}
-                </option>
-              ))}
-            </select>
-
             <div className="event-modal-actions">
-              <button className="event-create-button" onClick={createEvent}>
+              <button
+                className="event-create-button"
+                onClick={createEvent}
+              >
                 {editingEvent ? "Save" : "Create"}
               </button>
             </div>
@@ -673,22 +574,37 @@ function Calendar() {
         >
           <div
             className="calendar-event-preview"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) =>
+              event.stopPropagation()
+            }
           >
             <div className="event-preview-actions">
-              <button onClick={openEditEvent}>✎</button>
+              <button onClick={openEditEvent}>
+                ✎
+              </button>
 
-              <button onClick={() => setDeleteModal(true)}>♙</button>
+              <button
+                onClick={() => setDeleteModal(true)}
+              >
+                ♙
+              </button>
 
-              <button>•••</button>
-
-              <button onClick={() => setSelectedEvent(null)}>×</button>
+              <button
+                onClick={() =>
+                  setSelectedEvent(null)
+                }
+              >
+                ×
+              </button>
             </div>
 
             <div className="event-preview-title">
               <span
                 style={{
-                  background: getColor(selectedEvent.type, calendars),
+                  background: getColor(
+                    selectedEvent.type,
+                    calendars
+                  ),
                 }}
               />
 
@@ -696,14 +612,13 @@ function Calendar() {
             </div>
 
             <p className="event-preview-time">
-              ◷ Wednesday, September {selectedEvent.day} ・{" "}
-              {selectedEvent.start} - {selectedEvent.end}
+              September {selectedEvent.day} ・{" "}
+              {selectedEvent.start} -{" "}
+              {selectedEvent.end}
             </p>
 
             <p className="event-preview-description">
-              ☷{" "}
-              {selectedEvent.description ||
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum risus egestas elementum erat elementum a est."}
+              {selectedEvent.description}
             </p>
 
             <p className="event-preview-calendar">
@@ -718,17 +633,25 @@ function Calendar() {
           <div className="delete-event-modal">
             <h2>Deleting Event</h2>
 
-            <p>Are you sure you want to delete this event?</p>
+            <p>
+              Are you sure you want to delete this
+              event?
+            </p>
 
             <div>
               <button
                 className="delete-cancel"
-                onClick={() => setDeleteModal(false)}
+                onClick={() =>
+                  setDeleteModal(false)
+                }
               >
                 Cancel
               </button>
 
-              <button className="delete-confirm" onClick={deleteEvent}>
+              <button
+                className="delete-confirm"
+                onClick={deleteEvent}
+              >
                 Yes
               </button>
             </div>
@@ -739,7 +662,10 @@ function Calendar() {
   );
 }
 
-function MonthView({ events, onEventClick }) {
+function MonthView({
+  events = [],
+  onEventClick,
+}) {
   const weekNames = [
     "MONDAY",
     "TUESDAY",
@@ -763,12 +689,14 @@ function MonthView({ events, onEventClick }) {
           <div
             key={`${date.day}-${index}`}
             className={`calendar-day-cell ${
-              date.muted ? "muted-calendar-day" : ""
+              date.muted
+                ? "muted-calendar-day"
+                : ""
             }`}
           >
             <span
               className={
-                date.day === 8 && index === 9
+                date.day === 8 && !date.muted
                   ? "calendar-current-day"
                   : "calendar-day-number"
               }
@@ -778,18 +706,28 @@ function MonthView({ events, onEventClick }) {
 
             {!date.muted &&
               events
-                .filter((event) => event.day === date.day)
+                .filter(
+                  (event) =>
+                    event &&
+                    event.day === date.day
+                )
                 .map((event) => (
                   <button
                     key={event.id}
                     className="calendar-month-event"
                     style={{
-                      background: getLightColor(event.type),
-                      borderLeftColor: getDefaultColor(event.type),
+                      background: getLightColor(
+                        event.type
+                      ),
+                      borderLeftColor:
+                        getDefaultColor(event.type),
                     }}
-                    onClick={() => onEventClick(event)}
+                    onClick={() =>
+                      onEventClick(event)
+                    }
                   >
                     <span>{event.title}</span>
+
                     <small>{event.start}</small>
                   </button>
                 ))}
@@ -800,24 +738,59 @@ function MonthView({ events, onEventClick }) {
   );
 }
 
-function WeekView({ events, onEventClick }) {
+function WeekView({
+  events = [],
+  onEventClick,
+}) {
   const displayEvents = [
-    { ...events[1], column: 1, top: 40, height: 65 },
+    events[1] && {
+      ...events[1],
+      column: 1,
+      top: 40,
+      height: 65,
+    },
+
     {
       id: 101,
       title: "New Event",
+      description: "New meeting",
       type: "Meeting",
       start: "10:00",
       end: "11:30",
+      day: 9,
       column: 1,
       top: 110,
       height: 145,
     },
-    { ...events[3], column: 2, top: 185, height: 100 },
-    { ...events[0], column: 3, top: 335, height: 140 },
-    { ...events[4], column: 4, top: 110, height: 285 },
-    { ...events[5], column: 4, top: 400, height: 110 },
-  ];
+
+    events[3] && {
+      ...events[3],
+      column: 2,
+      top: 185,
+      height: 100,
+    },
+
+    events[0] && {
+      ...events[0],
+      column: 3,
+      top: 335,
+      height: 140,
+    },
+
+    events[4] && {
+      ...events[4],
+      column: 4,
+      top: 110,
+      height: 285,
+    },
+
+    events[5] && {
+      ...events[5],
+      column: 4,
+      top: 400,
+      height: 110,
+    },
+  ].filter(Boolean);
 
   return (
     <div className="calendar-time-view">
@@ -828,7 +801,13 @@ function WeekView({ events, onEventClick }) {
           <div key={day.day}>
             <small>{day.label}</small>
 
-            <span className={day.day === 8 ? "week-current-day" : ""}>
+            <span
+              className={
+                day.day === 8
+                  ? "week-current-day"
+                  : ""
+              }
+            >
               {day.day}
             </span>
           </div>
@@ -842,7 +821,11 @@ function WeekView({ events, onEventClick }) {
           {weekDays.map((day) => (
             <div
               key={day.day}
-              className={day.day === 8 ? "week-today-column" : ""}
+              className={
+                day.day === 8
+                  ? "week-today-column"
+                  : ""
+              }
             />
           ))}
 
@@ -852,13 +835,19 @@ function WeekView({ events, onEventClick }) {
               className="calendar-timed-event"
               style={{
                 left: `calc(${event.column} * (100% / 7) + 4px)`,
-                width: "calc((100% / 7) - 8px)",
+                width:
+                  "calc((100% / 7) - 8px)",
                 top: event.top,
                 height: event.height,
-                background: getLightColor(event.type),
-                borderLeftColor: getDefaultColor(event.type),
+                background: getLightColor(
+                  event.type
+                ),
+                borderLeftColor:
+                  getDefaultColor(event.type),
               }}
-              onClick={() => onEventClick(event)}
+              onClick={() =>
+                onEventClick(event)
+              }
             >
               <small>
                 {event.start} - {event.end}
@@ -877,37 +866,47 @@ function WeekView({ events, onEventClick }) {
   );
 }
 
-function DayView({ events, onEventClick }) {
+function DayView({
+  events = [],
+  onEventClick,
+}) {
   const dayEvents = [
-    {
+    events[3] && {
       ...events[3],
       top: 40,
       height: 110,
     },
+
     {
       id: 202,
       title: "New Event",
+      description: "New meeting",
       type: "Meeting",
       start: "10:00",
       end: "11:30",
+      day: 7,
       top: 190,
       height: 160,
     },
-    {
+
+    events[0] && {
       ...events[0],
       top: 355,
       height: 55,
     },
-    {
+
+    events[4] && {
       ...events[4],
       top: 515,
       height: 110,
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <div className="calendar-day-view">
-      <div className="calendar-day-view-title">TUESDAY 7</div>
+      <div className="calendar-day-view-title">
+        TUESDAY 7
+      </div>
 
       <div className="calendar-day-time-body">
         <TimeLabels />
@@ -920,10 +919,15 @@ function DayView({ events, onEventClick }) {
               style={{
                 top: event.top,
                 height: event.height,
-                background: getLightColor(event.type),
-                borderLeftColor: getDefaultColor(event.type),
+                background: getLightColor(
+                  event.type
+                ),
+                borderLeftColor:
+                  getDefaultColor(event.type),
               }}
-              onClick={() => onEventClick(event)}
+              onClick={() =>
+                onEventClick(event)
+              }
             >
               <small>
                 {event.start} - {event.end}
@@ -945,72 +949,35 @@ function DayView({ events, onEventClick }) {
 function TimeLabels() {
   return (
     <div className="calendar-time-labels">
-      {Array.from({ length: 12 }, (_, index) => (
-        <span key={index}>
-          {String(index + 1).padStart(2, "0")}:00
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function DatePicker({ selectedDay, onSelect }) {
-  const pickerDays = [
-    28, 29, 30, 31, 1, 2, 3,
-    4, 5, 6, 7, 8, 9, 10,
-    11, 12, 13, 14, 15, 16, 17,
-    18, 19, 20, 21, 22, 23, 24,
-    25, 26, 27, 28, 29, 30, 1,
-  ];
-
-  return (
-    <div className="calendar-date-picker">
-      <div className="date-picker-header">
-        <button>‹</button>
-
-        <strong>
-          September <span>2020</span>
-        </strong>
-
-        <button>›</button>
-      </div>
-
-      <div className="date-picker-week">
-        {["MO", "TU", "WE", "TH", "FR", "SA", "SU"].map((day) => (
-          <span key={day}>{day}</span>
-        ))}
-      </div>
-
-      <div className="date-picker-days">
-        {pickerDays.map((day, index) => (
-          <button
-            key={`${day}-${index}`}
-            className={
-              day === Number(selectedDay) && index > 6
-                ? "selected-picker-day"
-                : ""
-            }
-            onClick={() => onSelect(day)}
-          >
-            {day}
-          </button>
-        ))}
-      </div>
+      {Array.from(
+        { length: 12 },
+        (_, index) => (
+          <span key={index}>
+            {String(index + 1).padStart(
+              2,
+              "0"
+            )}
+            :00
+          </span>
+        )
+      )}
     </div>
   );
 }
 
 function getDefaultColor(type) {
   return (
-    calendarTypes.find((calendar) => calendar.name === type)?.color ||
-    "#9098a3"
+    calendarTypes.find(
+      (calendar) => calendar.name === type
+    )?.color || "#9098a3"
   );
 }
 
-function getColor(type, calendars) {
+function getColor(type, calendars = []) {
   return (
-    calendars.find((calendar) => calendar.name === type)?.color ||
-    "#9098a3"
+    calendars.find(
+      (calendar) => calendar.name === type
+    )?.color || "#9098a3"
   );
 }
 
