@@ -30,8 +30,6 @@ function Header({ toggleSidebar }) {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  /* ================= OUTSIDE CLICK ================= */
-
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (
@@ -59,8 +57,6 @@ function Header({ toggleSidebar }) {
     };
   }, []);
 
-  /* ================= SIDEBAR CHAT LISTENER ================= */
-
   useEffect(() => {
     const openChat = () => {
       setChatOpen(true);
@@ -74,8 +70,6 @@ function Header({ toggleSidebar }) {
       window.removeEventListener("open-chat", openChat);
     };
   }, []);
-
-  /* ================= FULL SCREEN ================= */
 
   const toggleFullScreen = async () => {
     try {
@@ -91,7 +85,10 @@ function Header({ toggleSidebar }) {
     }
   };
 
-  /* ================= SOCIAL ================= */
+  const goToProfile = () => {
+    setProfileOpen(false);
+    navigate("/profile");
+  };
 
   const goToSocial = () => {
     setProfileOpen(false);
@@ -145,8 +142,6 @@ function Header({ toggleSidebar }) {
           >
             <FaComments />
           </button>
-
-          {/* ================= NOTIFICATIONS ================= */}
 
           <div
             className="header-dropdown-wrapper"
@@ -212,8 +207,6 @@ function Header({ toggleSidebar }) {
             )}
           </div>
 
-          {/* ================= PROFILE ================= */}
-
           <div
             className="header-profile-wrapper"
             ref={profileRef}
@@ -241,7 +234,10 @@ function Header({ toggleSidebar }) {
 
             {profileOpen && (
               <div className="profile-dropdown">
-                <button type="button">
+                <button
+                  type="button"
+                  onClick={goToProfile}
+                >
                   <FaUser />
                   My Profile
                 </button>
@@ -279,8 +275,6 @@ function Header({ toggleSidebar }) {
           </div>
         </div>
       </header>
-
-      {/* ================= CHAT PANEL ================= */}
 
       {chatOpen && (
         <>

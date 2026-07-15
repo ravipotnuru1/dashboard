@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Dashboard6 from "./pages/Dashboard6";
 import SocialDashboard from "./pages/SocialDashboard";
+import Profile from "./pages/Profile";
 
 /* ================= E-COMMERCE PAGES ================= */
 
@@ -37,7 +38,10 @@ function App() {
     <Routes>
       {/* ================= AUTH ================= */}
 
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route
+        path="/"
+        element={<Navigate to="/login" replace />}
+      />
 
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
@@ -68,7 +72,14 @@ function App() {
           element={<Dashboard6 />}
         />
 
-        {/* PROFILE MENU -> SOCIAL */}
+        {/* ================= PROFILE ================= */}
+
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
+
+        {/* ================= SOCIAL ================= */}
 
         <Route
           path="/dashboard-social"
@@ -77,7 +88,10 @@ function App() {
 
         {/* ================= E-COMMERCE ================= */}
 
-        <Route path="/ecommerce" element={<Ecommerce />} />
+        <Route
+          path="/ecommerce"
+          element={<Ecommerce />}
+        />
 
         <Route
           path="/ecommerce-orders"
@@ -91,24 +105,26 @@ function App() {
 
         {/* ================= OTHER PAGES ================= */}
 
-        <Route path="/calendar" element={<Calendar />} />
+        <Route
+          path="/calendar"
+          element={<Calendar />}
+        />
 
         <Route path="/mail" element={<Mail />} />
 
         <Route path="/tasks" element={<Tasks />} />
 
-        <Route path="/projects" element={<Projects />} />
+        <Route
+          path="/projects"
+          element={<Projects />}
+        />
 
         <Route
           path="/file-manager"
           element={<FileManager />}
         />
 
-        {/* ================= NOTES ================= */}
-
         <Route path="/notes" element={<Notes />} />
-
-        {/* ================= CONTACTS ================= */}
 
         <Route
           path="/contacts"
