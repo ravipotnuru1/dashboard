@@ -30,6 +30,8 @@ function Header({ toggleSidebar }) {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
+  /* ================= OUTSIDE CLICK ================= */
+
   useEffect(() => {
     const handleOutsideClick = (event) => {
       if (
@@ -57,6 +59,24 @@ function Header({ toggleSidebar }) {
     };
   }, []);
 
+  /* ================= SIDEBAR CHAT LISTENER ================= */
+
+  useEffect(() => {
+    const openChat = () => {
+      setChatOpen(true);
+      setNotificationOpen(false);
+      setProfileOpen(false);
+    };
+
+    window.addEventListener("open-chat", openChat);
+
+    return () => {
+      window.removeEventListener("open-chat", openChat);
+    };
+  }, []);
+
+  /* ================= FULL SCREEN ================= */
+
   const toggleFullScreen = async () => {
     try {
       if (!document.fullscreenElement) {
@@ -70,6 +90,8 @@ function Header({ toggleSidebar }) {
       console.log("Fullscreen not supported", error);
     }
   };
+
+  /* ================= SOCIAL ================= */
 
   const goToSocial = () => {
     setProfileOpen(false);
@@ -123,6 +145,8 @@ function Header({ toggleSidebar }) {
           >
             <FaComments />
           </button>
+
+          {/* ================= NOTIFICATIONS ================= */}
 
           <div
             className="header-dropdown-wrapper"
@@ -188,6 +212,8 @@ function Header({ toggleSidebar }) {
             )}
           </div>
 
+          {/* ================= PROFILE ================= */}
+
           <div
             className="header-profile-wrapper"
             ref={profileRef}
@@ -219,8 +245,6 @@ function Header({ toggleSidebar }) {
                   <FaUser />
                   My Profile
                 </button>
-
-                {/* SOCIAL */}
 
                 <button
                   type="button"
@@ -255,6 +279,8 @@ function Header({ toggleSidebar }) {
           </div>
         </div>
       </header>
+
+      {/* ================= CHAT PANEL ================= */}
 
       {chatOpen && (
         <>
