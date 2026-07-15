@@ -1,386 +1,1627 @@
 import { useMemo, useState } from "react";
 import {
-  FaDropbox,
-  FaGitlab,
-  FaPython,
-  FaSlack,
-  FaAngular,
-  FaVuejs,
-  FaFacebookMessenger,
+  FaPlus,
+  FaSlidersH,
+  FaThLarge,
+  FaList,
+  FaEllipsisH,
+  FaSearch,
+  FaTimes,
+  FaTrash,
+  FaEdit,
+  FaUserPlus,
+  FaCalendarAlt,
+  FaClock,
+  FaCheck,
+  FaCopy,
+  FaCommentAlt,
+  FaFileAlt,
+  FaDownload,
+  FaPaperclip,
+  FaSmile,
+  FaImage,
+  FaChevronDown,
+  FaChevronRight,
 } from "react-icons/fa";
-import {
-  FiPlus,
-  FiMoreHorizontal,
-  FiFilter,
-  FiGrid,
-  FiList,
-  FiSearch,
-  FiClock,
-  FiEdit2,
-  FiTrash2,
-  FiUsers,
-  FiCalendar,
-  FiCheckCircle,
-  FiPaperclip,
-  FiMessageSquare,
-  FiX,
-  FiLink,
-  FiDownload,
-} from "react-icons/fi";
-import { SiBitbucket } from "react-icons/si";
 
-const green = "#1f9d45";
+import "./Projects.css";
 
 const initialProjects = [
   {
     id: 1,
+    icon: "◆",
+    iconClass: "dropbox",
     name: "App Development",
-    client: "Dropbox, Inc.",
-    icon: "dropbox",
+    company: "Dropbox, Inc.",
     description:
       "Create a mobile application on iOS and Android devices.",
     progress: 50,
     status: "Started",
     deadline: "1 week left",
+    creator: "Shane Black",
+    budget: "2.500.000",
+    members: ["SB", "JW", "RR"],
   },
   {
     id: 2,
+    icon: "🦊",
+    iconClass: "gitlab",
     name: "Website Redesign",
-    client: "GitLab Inc.",
-    icon: "gitlab",
+    company: "GitLab Inc.",
     description:
       "It is necessary to develop a website redesign in a corporate style.",
     progress: 75,
     status: "Started",
     deadline: "1 week left",
+    creator: "Jane Wilson",
+    budget: "1.800.000",
+    members: ["JW", "RC", "RR"],
   },
   {
     id: 3,
+    icon: "▣",
+    iconClass: "bitbucket",
     name: "Landing Page",
-    client: "Bitbucket, Inc.",
-    icon: "bitbucket",
+    company: "Bitbucket, Inc.",
     description:
       "It is necessary to create a landing together with the development of design.",
     progress: 100,
     status: "Completed",
     deadline: "1 week left",
+    creator: "Shane Black",
+    budget: "3.200.000",
+    members: ["SB", "JW"],
   },
   {
     id: 4,
+    icon: "🐍",
+    iconClass: "python",
     name: "Parser Development",
-    client: "Driveway, Inc.",
-    icon: "python",
+    company: "Driveway, Inc.",
     description:
       "It is necessary to develop a ticket site parser in python.",
     progress: 50,
     status: "On Hold",
     deadline: "5 days left",
+    creator: "Jacob Hawkins",
+    budget: "1.200.000",
+    members: ["JH", "JW", "RC"],
   },
   {
     id: 5,
+    icon: "✣",
+    iconClass: "slack",
     name: "App Development",
-    client: "Slack Technologies, Inc.",
-    icon: "slack",
+    company: "Slack Technologies, Inc.",
     description:
       "Create a mobile application on iOS and Android devices.",
     progress: 50,
     status: "Started",
     deadline: "5 days left",
+    creator: "Jacob Hawkins",
+    budget: "2.100.000",
+    members: ["JH", "RR"],
   },
   {
     id: 6,
+    icon: "🔥",
+    iconClass: "firebase",
     name: "App Development",
-    client: "Google, Inc.",
-    icon: "firebase",
+    company: "Google, Inc.",
     description:
       "Create a mobile application on iOS and Android devices.",
     progress: 25,
-    status: "Started",
+    status: "On Hold",
     deadline: "1 week left",
+    creator: "Ronald Robertson",
+    budget: "2.500.000",
+    members: ["RR", "JW"],
   },
   {
     id: 7,
+    icon: "A",
+    iconClass: "angular",
     name: "Admin Dashboard",
-    client: "ArtTemplate, Inc.",
-    icon: "angular",
+    company: "ArtTemplate, Inc.",
     description:
       "Necessary to create Admin Dashboard on Angular 8.",
     progress: 30,
     status: "Started",
     deadline: "1 week left",
+    creator: "Shane Black",
+    budget: "4.000.000",
+    members: ["SB", "RC"],
   },
   {
     id: 8,
+    icon: "V",
+    iconClass: "vue",
     name: "Web App on Vue.js",
-    client: "ArtTemplate, Inc.",
-    icon: "vue",
+    company: "ArtTemplate, Inc.",
     description:
-      "It is necessary to develop a web app on the framework Vue.js.",
+      "It is necessary to develop a web app on the framework Vue.js",
     progress: 100,
     status: "Completed",
     deadline: "1 week left",
+    creator: "Robert Edwards",
+    budget: "3.000.000",
+    members: ["RE", "JW"],
   },
   {
     id: 9,
+    icon: "●",
+    iconClass: "facebook",
     name: "App Development",
-    client: "Facebook, Inc.",
-    icon: "messenger",
+    company: "Facebook, Inc.",
     description:
       "Create a mobile application on iOS and Android devices.",
     progress: 50,
     status: "Started",
     deadline: "1 week left",
+    creator: "Ronald Robertson",
+    budget: "2.800.000",
+    members: ["RR", "SB", "JW"],
   },
 ];
 
-const members = [
-  "Shane Black",
-  "Jane Wilson",
-  "Jacob Hawkins",
-  "Regina Cooper",
+const initialChecklist = [
+  { id: 1, title: "Create wireframes", done: true },
+  { id: 2, title: "UI/UX design development", done: true },
+  { id: 3, title: "Layout design", done: true },
+  { id: 4, title: "Functional programming", done: false },
+  { id: 5, title: "Testing for possible errors", done: false },
+  { id: 6, title: "Final debugging applications", done: false },
 ];
 
-function ProjectIcon({ type, size = 32 }) {
-  const props = { size };
-
-  if (type === "dropbox") return <FaDropbox {...props} />;
-  if (type === "gitlab") return <FaGitlab {...props} />;
-  if (type === "bitbucket") return <SiBitbucket {...props} />;
-  if (type === "python") return <FaPython {...props} />;
-  if (type === "slack") return <FaSlack {...props} />;
-  if (type === "angular") return <FaAngular {...props} />;
-  if (type === "vue") return <FaVuejs {...props} />;
-  if (type === "messenger")
-    return <FaFacebookMessenger {...props} />;
-
-  return <FaGitlab {...props} />;
-}
+const ganttInitial = [
+  {
+    id: 1,
+    title: "Planning",
+    start: 0,
+    width: 22,
+    progress: 100,
+    type: "green",
+    group: "Planning",
+  },
+  {
+    id: 2,
+    title: "Wireframing",
+    start: 0,
+    width: 28,
+    progress: 100,
+    type: "blue",
+    group: "Wireframing",
+  },
+  {
+    id: 3,
+    title: "Design",
+    start: 8,
+    width: 45,
+    progress: 60,
+    type: "yellow",
+    group: "Design",
+  },
+  {
+    id: 4,
+    title: "Font Research",
+    start: 15,
+    width: 28,
+    progress: 100,
+    type: "yellow",
+    group: "Design",
+  },
+  {
+    id: 5,
+    title: "Color Palette",
+    start: 15,
+    width: 34,
+    progress: 80,
+    type: "yellow",
+    group: "Design",
+  },
+  {
+    id: 6,
+    title: "Mockup",
+    start: 23,
+    width: 26,
+    progress: 25,
+    type: "yellow",
+    group: "Design",
+  },
+  {
+    id: 7,
+    title: "User Interface",
+    start: 31,
+    width: 36,
+    progress: 50,
+    type: "green",
+    group: "Design",
+  },
+  {
+    id: 8,
+    title: "Illustrations",
+    start: 39,
+    width: 28,
+    progress: 100,
+    type: "yellow",
+    group: "Design",
+  },
+  {
+    id: 9,
+    title: "Animated UI Flow",
+    start: 15,
+    width: 28,
+    progress: 0,
+    type: "yellow",
+    group: "Design",
+  },
+  {
+    id: 10,
+    title: "Development",
+    start: 54,
+    width: 44,
+    progress: 50,
+    type: "aqua",
+    group: "Development",
+  },
+  {
+    id: 11,
+    title: "Testing",
+    start: 69,
+    width: 31,
+    progress: 0,
+    type: "purple",
+    group: "Testing",
+  },
+];
 
 function Projects() {
   const [projects, setProjects] = useState(initialProjects);
+  const [activeTab, setActiveTab] = useState("All");
   const [view, setView] = useState("grid");
-  const [activeStatus, setActiveStatus] = useState("All");
   const [search, setSearch] = useState("");
 
   const [filterOpen, setFilterOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("All");
+
+  const [projectMenu, setProjectMenu] = useState(null);
+  const [addModal, setAddModal] = useState(false);
   const [editProject, setEditProject] = useState(null);
-  const [detailsProject, setDetailsProject] = useState(null);
-  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
-  const [menuId, setMenuId] = useState(null);
+  const [checklist, setChecklist] = useState(initialChecklist);
+  const [newChecklist, setNewChecklist] = useState("");
 
-  const [newProject, setNewProject] = useState({
+  const [commentTab, setCommentTab] = useState("comments");
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([
+    {
+      id: 1,
+      name: "Jane Wilson",
+      time: "5 min ago",
+      text: "Hi Cody, any progress on the project? 😊",
+    },
+    {
+      id: 2,
+      name: "Jacob Hawkins",
+      time: "1 day ago",
+      text: "Hi Jane! Yes. I just finished developing the Chat template.",
+    },
+  ]);
+
+  const [ganttTasks, setGanttTasks] = useState(ganttInitial);
+  const [ganttMenu, setGanttMenu] = useState(null);
+  const [taskPreview, setTaskPreview] = useState(null);
+  const [designOpen, setDesignOpen] = useState(true);
+
+  const emptyProject = {
     name: "",
-    client: "",
+    company: "",
     description: "",
+    status: "Started",
+    progress: 0,
+    deadline: "1 week left",
+    creator: "Shane Black",
     budget: "",
-  });
+    members: ["SB"],
+  };
+
+  const [projectForm, setProjectForm] = useState(emptyProject);
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
-      const statusMatch =
-        activeStatus === "All" ||
-        project.status === activeStatus;
+      const matchesSearch =
+        project.name.toLowerCase().includes(search.toLowerCase()) ||
+        project.company.toLowerCase().includes(search.toLowerCase());
 
-      const searchMatch = project.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      const matchesTab =
+        activeTab === "All" || project.status === activeTab;
 
-      return statusMatch && searchMatch;
+      const matchesFilter =
+        filterStatus === "All" || project.status === filterStatus;
+
+      return matchesSearch && matchesTab && matchesFilter;
     });
-  }, [projects, activeStatus, search]);
+  }, [projects, search, activeTab, filterStatus]);
 
-  const createProject = () => {
-    if (!newProject.name.trim()) return;
+  const createProject = (event) => {
+    event.preventDefault();
 
-    const project = {
-      id: Date.now(),
-      name: newProject.name,
-      client: newProject.client || "New Client",
-      description:
-        newProject.description || "New project description.",
-      progress: 0,
-      status: "Started",
-      deadline: "1 week left",
-      icon: "dropbox",
-    };
+    if (!projectForm.name.trim()) return;
 
-    setProjects([...projects, project]);
+    setProjects((previous) => [
+      ...previous,
+      {
+        ...projectForm,
+        id: Date.now(),
+        icon: "◆",
+        iconClass: "dropbox",
+        progress: Number(projectForm.progress) || 0,
+      },
+    ]);
 
-    setNewProject({
-      name: "",
-      client: "",
-      description: "",
-      budget: "",
-    });
+    setProjectForm(emptyProject);
+    setAddModal(false);
+  };
 
-    setAddOpen(false);
+  const saveProject = (event) => {
+    event.preventDefault();
+
+    setProjects((previous) =>
+      previous.map((project) =>
+        project.id === editProject.id ? editProject : project
+      )
+    );
+
+    if (selectedProject?.id === editProject.id) {
+      setSelectedProject(editProject);
+    }
+
+    setEditProject(null);
   };
 
   const deleteProject = (id) => {
-    setProjects(projects.filter((project) => project.id !== id));
-    setMenuId(null);
+    setProjects((previous) =>
+      previous.filter((project) => project.id !== id)
+    );
+
+    if (selectedProject?.id === id) {
+      setSelectedProject(null);
+    }
+
+    setProjectMenu(null);
   };
 
-  return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Projects</h1>
+  const addMember = (id) => {
+    setProjects((previous) =>
+      previous.map((project) =>
+        project.id === id
+          ? {
+              ...project,
+              members: [...project.members, "NW"],
+            }
+          : project
+      )
+    );
 
-          <div style={styles.tabs}>
-            {["All", "Started", "On Hold", "Completed"].map(
-              (status) => (
-                <button
-                  key={status}
-                  onClick={() => setActiveStatus(status)}
-                  style={{
-                    ...styles.tab,
-                    color:
-                      activeStatus === status ? green : "#999",
-                    borderBottom:
-                      activeStatus === status
-                        ? `2px solid ${green}`
-                        : "2px solid transparent",
-                  }}
-                >
-                  {status}
-                </button>
+    setProjectMenu(null);
+  };
+
+  const addDueDate = (id) => {
+    setProjects((previous) =>
+      previous.map((project) =>
+        project.id === id
+          ? { ...project, deadline: "10 days left" }
+          : project
+      )
+    );
+
+    setProjectMenu(null);
+  };
+
+  const toggleChecklist = (id) => {
+    setChecklist((previous) =>
+      previous.map((item) =>
+        item.id === id ? { ...item, done: !item.done } : item
+      )
+    );
+  };
+
+  const addChecklistItem = () => {
+    if (!newChecklist.trim()) return;
+
+    setChecklist((previous) => [
+      ...previous,
+      {
+        id: Date.now(),
+        title: newChecklist,
+        done: false,
+      },
+    ]);
+
+    setNewChecklist("");
+  };
+
+  const deleteChecklist = (id) => {
+    setChecklist((previous) =>
+      previous.filter((item) => item.id !== id)
+    );
+  };
+
+  const addComment = () => {
+    if (!comment.trim()) return;
+
+    setComments((previous) => [
+      {
+        id: Date.now(),
+        name: "Ronald Robertson",
+        time: "Just now",
+        text: comment,
+      },
+      ...previous,
+    ]);
+
+    setComment("");
+  };
+
+  const duplicateTask = (task) => {
+    setGanttTasks((previous) => [
+      ...previous,
+      {
+        ...task,
+        id: Date.now(),
+        title: `${task.title} Copy`,
+      },
+    ]);
+
+    setGanttMenu(null);
+  };
+
+  const deleteTask = (id) => {
+    setGanttTasks((previous) =>
+      previous.filter((task) => task.id !== id)
+    );
+
+    setGanttMenu(null);
+  };
+
+  const addSubtask = (task) => {
+    setGanttTasks((previous) => [
+      ...previous,
+      {
+        id: Date.now(),
+        title: "New Subtask",
+        start: task.start + 5,
+        width: 20,
+        progress: 0,
+        type: task.type,
+        group: task.group,
+      },
+    ]);
+
+    setGanttMenu(null);
+  };
+
+  const changeTaskColor = (id, type) => {
+    setGanttTasks((previous) =>
+      previous.map((task) =>
+        task.id === id ? { ...task, type } : task
+      )
+    );
+
+    setGanttMenu(null);
+  };
+
+  const tabs = ["All", "Started", "On Hold", "Completed"];
+
+  const ProjectCard = ({ project }) => (
+    <article
+      className="project-card"
+      onDoubleClick={() => setSelectedProject(project)}
+    >
+      <div className="project-card-header">
+        <div className={`project-logo ${project.iconClass}`}>
+          {project.icon}
+        </div>
+
+        <div className="project-title-info">
+          <h3>{project.name}</h3>
+          <span>{project.company}</span>
+        </div>
+
+        <div className="project-menu-wrapper">
+          <button
+            type="button"
+            className="project-more"
+            onClick={() =>
+              setProjectMenu(
+                projectMenu === project.id ? null : project.id
               )
-            )}
+            }
+          >
+            <FaEllipsisH />
+          </button>
+
+          {projectMenu === project.id && (
+            <div className="project-dropdown">
+              <button
+                onClick={() => {
+                  setEditProject({ ...project });
+                  setProjectMenu(null);
+                }}
+              >
+                <FaEdit />
+                Edit
+              </button>
+
+              <button onClick={() => addMember(project.id)}>
+                <FaUserPlus />
+                Add Member
+              </button>
+
+              <button onClick={() => addDueDate(project.id)}>
+                <FaCalendarAlt />
+                Add Due Date
+              </button>
+
+              <button
+                onClick={() => {
+                  setSelectedProject(project);
+                  setProjectMenu(null);
+                }}
+              >
+                <FaFileAlt />
+                Project Details
+              </button>
+
+              <button
+                className="delete-option"
+                onClick={() => deleteProject(project.id)}
+              >
+                <FaTrash />
+                Delete Project
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <p className="project-description">{project.description}</p>
+
+      <div className="project-progress-title">
+        <span>Progress</span>
+        <span>{project.progress}%</span>
+      </div>
+
+      <div className="project-progress">
+        <div style={{ width: `${project.progress}%` }} />
+      </div>
+
+      <div className="project-card-footer">
+        <div className="project-members">
+          {project.members.map((member, index) => (
+            <span key={`${member}-${index}`}>{member}</span>
+          ))}
+        </div>
+
+        <span
+          className={`project-deadline ${
+            project.deadline.includes("5") ? "urgent" : ""
+          }`}
+        >
+          <FaClock />
+          {project.deadline}
+        </span>
+      </div>
+    </article>
+  );
+
+  if (view === "gantt") {
+    return (
+      <div className="projects-page gantt-page">
+        <div className="gantt-header">
+          <button className="design-plan-button">
+            Design Plan
+            <FaChevronDown />
+          </button>
+
+          <h2>
+            September <span>2020</span>
+          </h2>
+
+          <div className="projects-header-actions">
+            <button
+              className="filter-button"
+              onClick={() => setView("grid")}
+            >
+              <FaThLarge />
+            </button>
+
+            <button
+              className="add-project-button"
+              onClick={() => setAddModal(true)}
+            >
+              <FaPlus />
+              Add Project
+            </button>
           </div>
         </div>
 
-        <div style={styles.headerActions}>
+        <div className="gantt-board">
+          <div className="gantt-sidebar">
+            <span className="gantt-project-label">PROJECT NAME</span>
+
+            <button>
+              <FaChevronRight />
+              Planning
+            </button>
+
+            <button>
+              <FaChevronRight />
+              Wireframing
+            </button>
+
+            <button
+              onClick={() => setDesignOpen((previous) => !previous)}
+            >
+              {designOpen ? <FaChevronDown /> : <FaChevronRight />}
+              Design
+            </button>
+
+            {designOpen && (
+              <div className="gantt-subtasks">
+                <span>Font Research</span>
+                <span>Color Palette</span>
+                <span>Mockup</span>
+                <span>User Interface</span>
+                <span>Illustrations</span>
+                <span>Animated UI Flow</span>
+              </div>
+            )}
+
+            <button>
+              <FaChevronRight />
+              Development
+            </button>
+
+            <button>
+              <FaChevronRight />
+              Testing
+            </button>
+
+            <button className="gantt-add-list">
+              <FaPlus />
+              Add List
+            </button>
+          </div>
+
+          <div className="gantt-content">
+            <div className="gantt-days">
+              {[
+                "MO 3",
+                "TU 4",
+                "WE 5",
+                "TH 6",
+                "FR 7",
+                "SA 8",
+                "SU 9",
+                "MO 10",
+                "TU 11",
+                "WE 12",
+                "TH 13",
+                "FR 14",
+                "SA 15",
+                "SU 16",
+              ].map((day) => (
+                <span key={day}>{day}</span>
+              ))}
+            </div>
+
+            <div className="gantt-grid">
+              {ganttTasks
+                .filter(
+                  (task) =>
+                    designOpen || task.group !== "Design"
+                )
+                .map((task) => (
+                  <div className="gantt-row" key={task.id}>
+                    <button
+                      className={`gantt-bar ${task.type}`}
+                      style={{
+                        marginLeft: `${task.start}%`,
+                        width: `${task.width}%`,
+                      }}
+                      onClick={() => setTaskPreview(task)}
+                    >
+                      <span>{task.title}</span>
+                      <small>{task.progress}%</small>
+                    </button>
+
+                    <button
+                      className="gantt-more"
+                      onClick={() =>
+                        setGanttMenu(
+                          ganttMenu === task.id ? null : task.id
+                        )
+                      }
+                    >
+                      <FaEllipsisH />
+                    </button>
+
+                    {ganttMenu === task.id && (
+                      <div className="gantt-task-menu">
+                        <button
+                          onClick={() => {
+                            const title = window.prompt(
+                              "Edit task title",
+                              task.title
+                            );
+
+                            if (title) {
+                              setGanttTasks((previous) =>
+                                previous.map((item) =>
+                                  item.id === task.id
+                                    ? { ...item, title }
+                                    : item
+                                )
+                              );
+                            }
+
+                            setGanttMenu(null);
+                          }}
+                        >
+                          <FaEdit />
+                          Edit Title
+                        </button>
+
+                        <button onClick={() => addSubtask(task)}>
+                          <FaPlus />
+                          Add Subtask
+                        </button>
+
+                        <button onClick={() => setGanttMenu(null)}>
+                          <FaUserPlus />
+                          Add Member
+                        </button>
+
+                        <button onClick={() => duplicateTask(task)}>
+                          <FaCopy />
+                          Duplicate
+                        </button>
+
+                        <button
+                          className="delete-option"
+                          onClick={() => deleteTask(task.id)}
+                        >
+                          <FaTrash />
+                          Delete Task
+                        </button>
+
+                        <div className="task-colors">
+                          {[
+                            "green",
+                            "blue",
+                            "yellow",
+                            "aqua",
+                            "purple",
+                          ].map((type) => (
+                            <button
+                              key={type}
+                              className={`task-color ${type}`}
+                              onClick={() =>
+                                changeTaskColor(task.id, type)
+                              }
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+
+            <div className="gantt-controls">
+              <button>Today</button>
+              <button>−</button>
+              <span>Days</span>
+              <button>+</button>
+            </div>
+          </div>
+        </div>
+
+        {taskPreview && (
+          <div className="task-preview">
+            <button
+              className="task-preview-close"
+              onClick={() => setTaskPreview(null)}
+            >
+              <FaTimes />
+            </button>
+
+            <h3>{taskPreview.title}</h3>
+
+            <p>
+              <FaCalendarAlt />
+              03 Sep, 2020 — 07 Sep, 2020
+            </p>
+
+            <p>
+              <FaCheck />
+              Tasks: {taskPreview.progress}/100
+            </p>
+
+            <div className="preview-members">
+              <span>JW</span>
+              <span>SB</span>
+              <span>RR</span>
+            </div>
+          </div>
+        )}
+
+        {addModal && renderProjectModal()}
+      </div>
+    );
+  }
+
+  if (selectedProject) {
+    return (
+      <div className="project-details-page">
+        <aside className="details-project-list">
+          <div className="details-search">
+            <FaSearch />
+            <input
+              placeholder="Search..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
+          </div>
+
+          {filteredProjects.map((project) => (
+            <button
+              key={project.id}
+              className={`details-project-item ${
+                selectedProject.id === project.id ? "active" : ""
+              }`}
+              onClick={() => setSelectedProject(project)}
+            >
+              <div className={`project-logo ${project.iconClass}`}>
+                {project.icon}
+              </div>
+
+              <div>
+                <strong>{project.name}</strong>
+                <span>{project.company}</span>
+
+                <div className="mini-members">
+                  {project.members.map((member, index) => (
+                    <i key={`${member}-${index}`}>{member}</i>
+                  ))}
+                </div>
+              </div>
+
+              <small>
+                <FaClock />
+                {project.deadline}
+              </small>
+            </button>
+          ))}
+        </aside>
+
+        <main className="project-details-content">
+          <div className="details-heading">
+            <div>
+              <div
+                className={`project-logo ${selectedProject.iconClass}`}
+              >
+                {selectedProject.icon}
+              </div>
+
+              <div>
+                <h2>{selectedProject.name}</h2>
+                <span>{selectedProject.company}</span>
+              </div>
+            </div>
+
+            <button
+              className="close-details"
+              onClick={() => setSelectedProject(null)}
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <section className="project-details-summary">
+            <h4>DETAILS</h4>
+
+            <div className="details-stats">
+              <div>
+                <span>$</span>
+                <p>
+                  Budget
+                  <strong>{selectedProject.budget}</strong>
+                </p>
+              </div>
+
+              <div>
+                <FaCalendarAlt />
+                <p>
+                  Start Date
+                  <strong>17 Jun, 2020</strong>
+                </p>
+              </div>
+
+              <div>
+                <FaCalendarAlt />
+                <p>
+                  End Date
+                  <strong>04 Jul, 2020</strong>
+                </p>
+              </div>
+            </div>
+
+            <h4>DESCRIPTION</h4>
+            <p className="details-description">
+              You need to develop an application on something like
+              React native, so that it is for Android and IOS. There
+              are about 30 screens, the design and layout in the
+              sketch is ready. The main pages are login, getting a
+              task, a list of tasks, a map, a history of tasks,
+              calling the camera to complete a task.
+            </p>
+
+            <h4>CHECKLIST ({Math.round(
+              (checklist.filter((item) => item.done).length /
+                checklist.length) *
+                100
+            ) || 0}%)</h4>
+
+            <div className="checklist-progress">
+              <div
+                style={{
+                  width: `${
+                    (checklist.filter((item) => item.done).length /
+                      checklist.length) *
+                    100
+                  }%`,
+                }}
+              />
+            </div>
+
+            <div className="checklist">
+              {checklist.map((item) => (
+                <div className="checklist-item" key={item.id}>
+                  <button
+                    className={item.done ? "checked" : ""}
+                    onClick={() => toggleChecklist(item.id)}
+                  >
+                    {item.done && <FaCheck />}
+                  </button>
+
+                  <span className={item.done ? "done" : ""}>
+                    {item.title}
+                  </span>
+
+                  <button
+                    className="checklist-delete"
+                    onClick={() => deleteChecklist(item.id)}
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              ))}
+
+              <div className="add-checklist">
+                <input
+                  placeholder="New checklist item..."
+                  value={newChecklist}
+                  onChange={(event) =>
+                    setNewChecklist(event.target.value)
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      addChecklistItem();
+                    }
+                  }}
+                />
+
+                <button onClick={addChecklistItem}>
+                  <FaPlus />
+                  Add Checklist Item
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="project-comments">
+            <div className="comment-tabs">
+              <button
+                className={
+                  commentTab === "comments" ? "active" : ""
+                }
+                onClick={() => setCommentTab("comments")}
+              >
+                COMMENTS
+              </button>
+
+              <button
+                className={
+                  commentTab === "activity" ? "active" : ""
+                }
+                onClick={() => setCommentTab("activity")}
+              >
+                ACTIVITY
+              </button>
+            </div>
+
+            {commentTab === "comments" ? (
+              <>
+                <div className="comment-editor">
+                  <textarea
+                    placeholder="Add Comment..."
+                    value={comment}
+                    onChange={(event) =>
+                      setComment(event.target.value)
+                    }
+                  />
+
+                  <div>
+                    <button onClick={addComment}>Comment</button>
+
+                    <span>
+                      <FaPaperclip />
+                      <FaSmile />
+                      <FaImage />
+                    </span>
+                  </div>
+                </div>
+
+                <div className="comments-list">
+                  {comments.map((item) => (
+                    <div className="comment-item" key={item.id}>
+                      <div className="comment-avatar">
+                        {item.name.charAt(0)}
+                      </div>
+
+                      <div>
+                        <strong>
+                          {item.name}
+                          <small>{item.time}</small>
+                        </strong>
+
+                        <p>{item.text}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="activity-list">
+                <p>Jane Wilson updated project details.</p>
+                <p>Shane Black completed a checklist item.</p>
+                <p>Ronald Robertson added a new comment.</p>
+              </div>
+            )}
+          </section>
+        </main>
+
+        <aside className="project-details-right">
+          <select
+            value={selectedProject.status}
+            onChange={(event) => {
+              const updated = {
+                ...selectedProject,
+                status: event.target.value,
+              };
+
+              setSelectedProject(updated);
+
+              setProjects((previous) =>
+                previous.map((project) =>
+                  project.id === updated.id ? updated : project
+                )
+              );
+            }}
+          >
+            <option>Started</option>
+            <option>On Hold</option>
+            <option>Completed</option>
+          </select>
+
+          <section>
+            <div className="details-side-title">
+              <h4>MEMBERS</h4>
+              <button onClick={() => addMember(selectedProject.id)}>
+                <FaPlus />
+              </button>
+            </div>
+
+            {[
+              "Jacob Hawkins",
+              "Regina Cooper",
+              "Jane Wilson",
+              "Ronald Robertson",
+              "Dustin Williamson",
+              "Robert Edwards",
+            ].map((member) => (
+              <div className="details-member" key={member}>
+                <span>{member.charAt(0)}</span>
+
+                <div>
+                  <strong>{member}</strong>
+                  <small>Project Manager</small>
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <section>
+            <div className="details-side-title">
+              <h4>FILES</h4>
+              <button>
+                <FaPlus />
+              </button>
+            </div>
+
+            {[
+              "Wireframe UI Kit.zip",
+              "Brand Styles Guide.pdf",
+              "Rocket – Admin Dashboard.fig",
+              "Picture 01.png",
+              "Picture 02.png",
+            ].map((file) => (
+              <div className="details-file" key={file}>
+                <FaFileAlt />
+
+                <div>
+                  <strong>{file}</strong>
+                  <small>5.8 MB</small>
+                </div>
+
+                <button>
+                  <FaDownload />
+                </button>
+              </div>
+            ))}
+          </section>
+        </aside>
+
+        {editProject && renderEditModal()}
+      </div>
+    );
+  }
+
+  function renderProjectModal() {
+    return (
+      <div className="project-modal-overlay">
+        <form
+          className="project-modal"
+          onSubmit={createProject}
+        >
+          <div className="project-modal-heading">
+            <h2>Add Project</h2>
+
+            <button
+              type="button"
+              onClick={() => setAddModal(false)}
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <div className="project-upload-logo">
+            <FaPlus />
+          </div>
+
+          <label>Project Name</label>
+          <input
+            value={projectForm.name}
+            onChange={(event) =>
+              setProjectForm({
+                ...projectForm,
+                name: event.target.value,
+              })
+            }
+            placeholder="App Development"
+            required
+          />
+
+          <label>Client Name</label>
+          <input
+            value={projectForm.company}
+            onChange={(event) =>
+              setProjectForm({
+                ...projectForm,
+                company: event.target.value,
+              })
+            }
+            placeholder="Dropbox, Inc."
+            required
+          />
+
+          <label>Description</label>
+          <textarea
+            value={projectForm.description}
+            onChange={(event) =>
+              setProjectForm({
+                ...projectForm,
+                description: event.target.value,
+              })
+            }
+            placeholder="Project description"
+          />
+
+          <div className="project-modal-fields">
+            <div>
+              <label>Status</label>
+
+              <select
+                value={projectForm.status}
+                onChange={(event) =>
+                  setProjectForm({
+                    ...projectForm,
+                    status: event.target.value,
+                  })
+                }
+              >
+                <option>Started</option>
+                <option>On Hold</option>
+                <option>Completed</option>
+              </select>
+            </div>
+
+            <div>
+              <label>Progress</label>
+
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={projectForm.progress}
+                onChange={(event) =>
+                  setProjectForm({
+                    ...projectForm,
+                    progress: event.target.value,
+                  })
+                }
+              />
+            </div>
+          </div>
+
+          <label>Budget</label>
+          <input
+            value={projectForm.budget}
+            onChange={(event) =>
+              setProjectForm({
+                ...projectForm,
+                budget: event.target.value,
+              })
+            }
+            placeholder="$ 2.500.000"
+          />
+
+          <button className="project-modal-submit" type="submit">
+            Create
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  function renderEditModal() {
+    return (
+      <div className="project-modal-overlay">
+        <form className="project-modal" onSubmit={saveProject}>
+          <div className="project-modal-heading">
+            <h2>Edit Project</h2>
+
+            <button
+              type="button"
+              onClick={() => setEditProject(null)}
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <div
+            className={`project-upload-logo ${editProject.iconClass}`}
+          >
+            {editProject.icon}
+          </div>
+
+          <label>Status</label>
+
+          <select
+            value={editProject.status}
+            onChange={(event) =>
+              setEditProject({
+                ...editProject,
+                status: event.target.value,
+              })
+            }
+          >
+            <option>Started</option>
+            <option>On Hold</option>
+            <option>Completed</option>
+          </select>
+
+          <label>Project Name</label>
+
+          <input
+            value={editProject.name}
+            onChange={(event) =>
+              setEditProject({
+                ...editProject,
+                name: event.target.value,
+              })
+            }
+          />
+
+          <label>Client Name</label>
+
+          <input
+            value={editProject.company}
+            onChange={(event) =>
+              setEditProject({
+                ...editProject,
+                company: event.target.value,
+              })
+            }
+          />
+
+          <label>Description</label>
+
+          <textarea
+            value={editProject.description}
+            onChange={(event) =>
+              setEditProject({
+                ...editProject,
+                description: event.target.value,
+              })
+            }
+          />
+
+          <label>Progress</label>
+
+          <input
+            type="number"
+            min="0"
+            max="100"
+            value={editProject.progress}
+            onChange={(event) =>
+              setEditProject({
+                ...editProject,
+                progress: Number(event.target.value),
+              })
+            }
+          />
+
+          <label>Budget</label>
+
+          <input
+            value={editProject.budget}
+            onChange={(event) =>
+              setEditProject({
+                ...editProject,
+                budget: event.target.value,
+              })
+            }
+          />
+
+          <button className="project-modal-submit" type="submit">
+            Save
+          </button>
+        </form>
+      </div>
+    );
+  }
+
+  return (
+    <div className="projects-page">
+      <div className="projects-header">
+        <h1>Projects</h1>
+
+        <div className="projects-header-actions">
           <button
-            style={styles.iconButton}
+            className="filter-button"
             onClick={() => setFilterOpen(true)}
           >
-            <FiFilter />
+            <FaSlidersH />
           </button>
 
           <button
-            style={styles.addButton}
-            onClick={() => setAddOpen(true)}
+            className="add-project-button"
+            onClick={() => {
+              setProjectForm(emptyProject);
+              setAddModal(true);
+            }}
           >
-            <FiPlus /> Add Project
+            <FaPlus />
+            Add Project
           </button>
         </div>
       </div>
 
-      <div style={styles.viewRow}>
-        <button
-          style={styles.iconButton}
-          onClick={() => setTimelineOpen(true)}
-        >
-          <FiCalendar />
-        </button>
+      <div className="projects-tabs-row">
+        <div className="projects-tabs">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              className={activeTab === tab ? "active" : ""}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+              <span>
+                {tab === "All"
+                  ? projects.length
+                  : projects.filter(
+                      (project) => project.status === tab
+                    ).length}
+              </span>
+            </button>
+          ))}
+        </div>
 
-        <button
-          style={{
-            ...styles.viewButton,
-            color: view === "list" ? green : "#999",
-          }}
-          onClick={() => setView("list")}
-        >
-          <FiList />
-        </button>
+        <div className="project-view-buttons">
+          <button
+            className={view === "list" ? "active" : ""}
+            onClick={() => setView("list")}
+          >
+            <FaList />
+          </button>
 
-        <button
-          style={{
-            ...styles.viewButton,
-            color: view === "grid" ? green : "#999",
-          }}
-          onClick={() => setView("grid")}
-        >
-          <FiGrid />
-        </button>
+          <button
+            className={view === "grid" ? "active" : ""}
+            onClick={() => setView("grid")}
+          >
+            <FaThLarge />
+          </button>
+
+          <button onClick={() => setView("gantt")}>
+            Gantt
+          </button>
+        </div>
       </div>
 
       {view === "list" && (
-        <div style={styles.searchBar}>
-          <FiSearch color="#999" />
+        <div className="project-list-search">
+          <FaSearch />
 
           <input
+            placeholder="Search project..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search projects..."
-            style={styles.searchInput}
+            onChange={(event) => setSearch(event.target.value)}
           />
         </div>
       )}
 
       {view === "grid" ? (
-        <div style={styles.grid}>
+        <div className="projects-grid">
           {filteredProjects.map((project) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              menuId={menuId}
-              setMenuId={setMenuId}
-              onDetails={() => setDetailsProject(project)}
-              onEdit={() => setEditProject(project)}
-              onDelete={() => deleteProject(project.id)}
-            />
+            <ProjectCard key={project.id} project={project} />
           ))}
         </div>
       ) : (
-        <ProjectTable
-          projects={filteredProjects}
-          onDetails={setDetailsProject}
-          onEdit={setEditProject}
-        />
+        <div className="projects-list">
+          <div className="projects-list-header">
+            <span>PROJECT NAME</span>
+            <span>CREATED BY</span>
+            <span>PROGRESS</span>
+            <span>DEADLINE</span>
+            <span />
+          </div>
+
+          {filteredProjects.map((project) => (
+            <div
+              className="projects-list-row"
+              key={project.id}
+              onDoubleClick={() => setSelectedProject(project)}
+            >
+              <div className="list-project-name">
+                <div
+                  className={`project-logo ${project.iconClass}`}
+                >
+                  {project.icon}
+                </div>
+
+                <div>
+                  <strong>{project.name}</strong>
+                  <span>{project.company}</span>
+                </div>
+              </div>
+
+              <div className="list-creator">
+                <span>{project.creator.charAt(0)}</span>
+
+                <div>
+                  <strong>{project.creator}</strong>
+                  <small>Project Manager</small>
+                </div>
+              </div>
+
+              <div className="list-progress">
+                <div>
+                  <i style={{ width: `${project.progress}%` }} />
+                </div>
+
+                <span>{project.progress}%</span>
+              </div>
+
+              <span
+                className={`project-deadline ${
+                  project.deadline.includes("5") ? "urgent" : ""
+                }`}
+              >
+                <FaClock />
+                {project.deadline}
+              </span>
+
+              <button
+                className="project-more"
+                onClick={() =>
+                  setProjectMenu(
+                    projectMenu === project.id
+                      ? null
+                      : project.id
+                  )
+                }
+              >
+                <FaEllipsisH />
+              </button>
+            </div>
+          ))}
+        </div>
       )}
 
       {filterOpen && (
         <>
           <div
-            style={styles.overlay}
+            className="project-filter-overlay"
             onClick={() => setFilterOpen(false)}
           />
 
-          <div style={styles.sidePanel}>
-            <button
-              style={styles.close}
-              onClick={() => setFilterOpen(false)}
-            >
-              <FiX />
-            </button>
+          <aside className="project-filter-panel">
+            <div className="filter-heading">
+              <h2>Filter</h2>
 
-            <h2>Filter</h2>
+              <button onClick={() => setFilterOpen(false)}>
+                <FaTimes />
+              </button>
+            </div>
 
-            <label style={styles.label}>Search Projects...</label>
+            <div className="filter-search">
+              <FaSearch />
+              <input
+                placeholder="Search Projects..."
+                value={search}
+                onChange={(event) =>
+                  setSearch(event.target.value)
+                }
+              />
+            </div>
 
-            <input
-              style={styles.input}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search Projects..."
-            />
+            <label>Members</label>
 
-            <label style={styles.label}>Members</label>
+            <div className="member-filter">
+              <span>SB</span>
+              Shane Black
+              <FaTimes />
+            </div>
 
-            <select style={styles.input}>
-              {members.map((member) => (
-                <option key={member}>{member}</option>
-              ))}
-            </select>
+            <label>Due Date</label>
 
-            <label style={styles.label}>Due Date</label>
-
-            <select style={styles.input}>
+            <select>
               <option>Due anytime</option>
-              <option>Today</option>
-              <option>This week</option>
+              <option>5 days left</option>
+              <option>1 week left</option>
             </select>
 
-            <label style={styles.label}>Status</label>
+            <label>Status</label>
 
             <select
-              style={styles.input}
-              value={activeStatus}
-              onChange={(e) => setActiveStatus(e.target.value)}
+              value={filterStatus}
+              onChange={(event) =>
+                setFilterStatus(event.target.value)
+              }
             >
               <option>All</option>
               <option>Started</option>
@@ -388,1095 +1629,34 @@ function Projects() {
               <option>Completed</option>
             </select>
 
-            <button
-              style={styles.addButton}
-              onClick={() => setFilterOpen(false)}
-            >
-              Apply Filters
-            </button>
-          </div>
+            <div className="filter-actions">
+              <button
+                className="apply-filter"
+                onClick={() => setFilterOpen(false)}
+              >
+                Apply Filters
+              </button>
+
+              <button
+                className="reset-filter"
+                onClick={() => {
+                  setSearch("");
+                  setFilterStatus("All");
+                  setActiveTab("All");
+                }}
+              >
+                Reset all Filters
+              </button>
+            </div>
+          </aside>
         </>
       )}
 
-      {addOpen && (
-        <ProjectForm
-          title="Add Project"
-          project={newProject}
-          setProject={setNewProject}
-          onClose={() => setAddOpen(false)}
-          onSave={createProject}
-          buttonText="Create"
-        />
-      )}
+      {addModal && renderProjectModal()}
 
-      {editProject && (
-        <ProjectForm
-          title="Edit Project"
-          project={editProject}
-          setProject={setEditProject}
-          onClose={() => setEditProject(null)}
-          onSave={() => {
-            setProjects(
-              projects.map((project) =>
-                project.id === editProject.id
-                  ? editProject
-                  : project
-              )
-            );
-
-            setEditProject(null);
-          }}
-          buttonText="Save"
-        />
-      )}
-
-      {detailsProject && (
-        <ProjectDetails
-          project={detailsProject}
-          onClose={() => setDetailsProject(null)}
-        />
-      )}
-
-      {timelineOpen && (
-        <Timeline onClose={() => setTimelineOpen(false)} />
-      )}
+      {editProject && renderEditModal()}
     </div>
   );
-}
-
-function ProjectCard({
-  project,
-  menuId,
-  setMenuId,
-  onDetails,
-  onEdit,
-  onDelete,
-}) {
-  return (
-    <div style={styles.card}>
-      <div style={styles.cardTop}>
-        <div
-          style={styles.projectTitle}
-          onClick={onDetails}
-        >
-          <ProjectIcon type={project.icon} />
-
-          <div>
-            <strong>{project.name}</strong>
-            <div style={styles.client}>{project.client}</div>
-          </div>
-        </div>
-
-        <div style={{ position: "relative" }}>
-          <button
-            style={styles.moreButton}
-            onClick={() =>
-              setMenuId(menuId === project.id ? null : project.id)
-            }
-          >
-            <FiMoreHorizontal />
-          </button>
-
-          {menuId === project.id && (
-            <div style={styles.menu}>
-              <button onClick={onEdit}>
-                <FiEdit2 /> Edit
-              </button>
-
-              <button>
-                <FiUsers /> Add Member
-              </button>
-
-              <button>
-                <FiCalendar /> Add Due Date
-              </button>
-
-              <button
-                style={{ color: "#ef4444" }}
-                onClick={onDelete}
-              >
-                <FiTrash2 /> Delete Project
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <p style={styles.description}>{project.description}</p>
-
-      <div style={styles.progressText}>
-        <span>Progress</span>
-        <span>{project.progress}%</span>
-      </div>
-
-      <div style={styles.progress}>
-        <div
-          style={{
-            ...styles.progressFill,
-            width: `${project.progress}%`,
-          }}
-        />
-      </div>
-
-      <div style={styles.cardBottom}>
-        <div style={styles.fakeAvatars}>
-          <span>JW</span>
-          <span>RC</span>
-          <span>SB</span>
-        </div>
-
-        <div style={styles.deadline}>
-          <FiClock /> {project.deadline}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ProjectTable({ projects, onDetails, onEdit }) {
-  return (
-    <div style={styles.tableCard}>
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>PROJECT NAME</th>
-            <th>CREATED BY</th>
-            <th>PROGRESS</th>
-            <th>DEADLINE</th>
-            <th></th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {projects.map((project) => (
-            <tr key={project.id}>
-              <td>
-                <div
-                  style={styles.projectTitle}
-                  onClick={() => onDetails(project)}
-                >
-                  <ProjectIcon type={project.icon} size={24} />
-
-                  <div>
-                    <strong>{project.name}</strong>
-                    <div style={styles.client}>
-                      {project.client}
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-              <td>Shane Black</td>
-
-              <td>
-                <div style={styles.tableProgress}>
-                  <div style={styles.progress}>
-                    <div
-                      style={{
-                        ...styles.progressFill,
-                        width: `${project.progress}%`,
-                      }}
-                    />
-                  </div>
-
-                  <span>{project.progress}%</span>
-                </div>
-              </td>
-
-              <td>
-                <FiClock /> {project.deadline}
-              </td>
-
-              <td>
-                <button
-                  style={styles.moreButton}
-                  onClick={() => onEdit(project)}
-                >
-                  <FiMoreHorizontal />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ProjectForm({
-  title,
-  project,
-  setProject,
-  onClose,
-  onSave,
-  buttonText,
-}) {
-  return (
-    <div style={styles.modalOverlay}>
-      <div style={styles.formModal}>
-        <button style={styles.close} onClick={onClose}>
-          <FiX />
-        </button>
-
-        <h2>{title}</h2>
-
-        <div style={styles.logoUpload}>
-          <FiPlus />
-        </div>
-
-        <label style={styles.label}>Project Name</label>
-
-        <input
-          style={styles.input}
-          value={project.name}
-          onChange={(e) =>
-            setProject({
-              ...project,
-              name: e.target.value,
-            })
-          }
-        />
-
-        <label style={styles.label}>Client Name</label>
-
-        <input
-          style={styles.input}
-          value={project.client}
-          onChange={(e) =>
-            setProject({
-              ...project,
-              client: e.target.value,
-            })
-          }
-        />
-
-        <label style={styles.label}>Description</label>
-
-        <textarea
-          style={styles.textarea}
-          value={project.description}
-          onChange={(e) =>
-            setProject({
-              ...project,
-              description: e.target.value,
-            })
-          }
-        />
-
-        <div style={styles.twoColumns}>
-          <div>
-            <label style={styles.label}>Start Date</label>
-            <input type="date" style={styles.input} />
-          </div>
-
-          <div>
-            <label style={styles.label}>End Date</label>
-            <input type="date" style={styles.input} />
-          </div>
-        </div>
-
-        <label style={styles.label}>Members</label>
-
-        <select style={styles.input}>
-          {members.map((member) => (
-            <option key={member}>{member}</option>
-          ))}
-        </select>
-
-        <label style={styles.label}>Budget</label>
-
-        <input
-          style={styles.input}
-          value={project.budget || ""}
-          onChange={(e) =>
-            setProject({
-              ...project,
-              budget: e.target.value,
-            })
-          }
-          placeholder="$ 25,000"
-        />
-
-        <button style={styles.saveButton} onClick={onSave}>
-          {buttonText}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function ProjectDetails({ project, onClose }) {
-  const [status, setStatus] = useState(project.status);
-  const [comment, setComment] = useState("");
-  const [comments, setComments] = useState([
-    "Hi Cody, any progress on the project? 🙂",
-    "Yes. I just finished developing the Chat template.",
-  ]);
-
-  return (
-    <div style={styles.modalOverlay}>
-      <div style={styles.detailsModal}>
-        <button style={styles.close} onClick={onClose}>
-          <FiX />
-        </button>
-
-        <div style={styles.detailsHeader}>
-          <div style={styles.projectTitle}>
-            <ProjectIcon type={project.icon} />
-
-            <div>
-              <h2 style={{ margin: 0 }}>{project.name}</h2>
-              <span style={styles.client}>{project.client}</span>
-            </div>
-          </div>
-
-          <select
-            style={styles.statusSelect}
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option>Started</option>
-            <option>On Hold</option>
-            <option>Completed</option>
-          </select>
-        </div>
-
-        <div style={styles.detailsGrid}>
-          <main>
-            <h4>DETAILS</h4>
-
-            <div style={styles.stats}>
-              <span>💰 Budget $25,000</span>
-              <span>📅 Start Date 17 Jun, 2020</span>
-              <span>📅 End Date 04 Jul, 2020</span>
-            </div>
-
-            <h4>DESCRIPTION</h4>
-
-            <p style={styles.description}>
-              {project.description} There are about 30 screens,
-              the design and layout in the sketch is ready.
-            </p>
-
-            <h4>CHECKLIST (50%)</h4>
-
-            <div style={styles.progress}>
-              <div
-                style={{
-                  ...styles.progressFill,
-                  width: "50%",
-                }}
-              />
-            </div>
-
-            {[
-              "Create wireframe",
-              "UI/UX design development",
-              "Layout design",
-              "Functional programming",
-              "Testing for possible errors",
-            ].map((item, index) => (
-              <div style={styles.checkItem} key={item}>
-                <FiCheckCircle
-                  color={index < 3 ? green : "#bbb"}
-                />
-                {item}
-              </div>
-            ))}
-
-            <h4>COMMENTS</h4>
-
-            <div style={styles.commentBox}>
-              <input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Add Comment..."
-                style={styles.commentInput}
-              />
-
-              <button
-                style={styles.saveButton}
-                onClick={() => {
-                  if (!comment.trim()) return;
-                  setComments([...comments, comment]);
-                  setComment("");
-                }}
-              >
-                Comment
-              </button>
-            </div>
-
-            {comments.map((item, index) => (
-              <div key={index} style={styles.comment}>
-                <div style={styles.avatar}>JW</div>
-
-                <div>
-                  <strong>
-                    {index === 0 ? "Jane Wilson" : "Jacob Hawkins"}
-                  </strong>
-                  <p>{item}</p>
-                </div>
-              </div>
-            ))}
-          </main>
-
-          <aside style={styles.detailsSide}>
-            <h4>MEMBERS</h4>
-
-            {members.map((member) => (
-              <div style={styles.member} key={member}>
-                <div style={styles.avatar}>
-                  {member
-                    .split(" ")
-                    .map((word) => word[0])
-                    .join("")}
-                </div>
-
-                <span>{member}</span>
-              </div>
-            ))}
-
-            <h4>FILES</h4>
-
-            {[
-              "Wireframe UI Kit.zip",
-              "Brand Styles Guide.pdf",
-              "Rocket Admin.psd",
-              "Picture 01.png",
-            ].map((file) => (
-              <div style={styles.file} key={file}>
-                <FiPaperclip />
-                <span>{file}</span>
-                <FiDownload />
-              </div>
-            ))}
-          </aside>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Timeline({ onClose }) {
-  const tasks = [
-    ["Planning", 0, 3, "#bcebd0"],
-    ["Wireframing", 0, 5, "#b9e9ef"],
-    ["Design", 2, 6, "#ffe5a3"],
-    ["Font Research", 2, 4, "#ffe5a3"],
-    ["Color Palette", 3, 5, "#ffe5a3"],
-    ["Mockup", 4, 3, "#ffe5a3"],
-    ["User Interface", 5, 5, "#bcebd0"],
-    ["Illustrations", 7, 4, "#ffe5a3"],
-    ["Animated UI Flow", 3, 5, "#ffe5a3"],
-    ["Development", 8, 7, "#b9e9ef"],
-    ["Testing", 10, 5, "#e6c7f3"],
-  ];
-
-  const [taskMenu, setTaskMenu] = useState(null);
-
-  return (
-    <div style={styles.fullScreen}>
-      <div style={styles.timelineHeader}>
-        <div>
-          <h2>Design Plan</h2>
-        </div>
-
-        <div>
-          <strong>September 2020</strong>
-
-          <button style={styles.addButton}>
-            <FiPlus /> Add Project
-          </button>
-
-          <button style={styles.closeTimeline} onClick={onClose}>
-            <FiX />
-          </button>
-        </div>
-      </div>
-
-      <div style={styles.timeline}>
-        <div style={styles.taskNames}>
-          <strong>PROJECT NAME</strong>
-
-          {tasks.map(([name], index) => (
-            <div
-              key={name}
-              style={styles.taskName}
-              onClick={() =>
-                setTaskMenu(taskMenu === index ? null : index)
-              }
-            >
-              {name}
-
-              {taskMenu === index && (
-                <div style={styles.taskMenu}>
-                  <button>
-                    <FiEdit2 /> Edit Title
-                  </button>
-
-                  <button>
-                    <FiPlus /> Add Subtask
-                  </button>
-
-                  <button>
-                    <FiUsers /> Add Member
-                  </button>
-
-                  <button>
-                    <FiLink /> Duplicate
-                  </button>
-
-                  <button style={{ color: "#ef4444" }}>
-                    <FiTrash2 /> Delete Task
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div style={styles.chart}>
-          <div style={styles.days}>
-            {[3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map(
-              (day) => (
-                <span key={day}>{day}</span>
-              )
-            )}
-          </div>
-
-          {tasks.map(([name, start, width, color]) => (
-            <div style={styles.chartRow} key={name}>
-              <div
-                style={{
-                  ...styles.timelineBar,
-                  marginLeft: `${start * 55}px`,
-                  width: `${width * 55}px`,
-                  background: color,
-                }}
-              >
-                {name}
-                <span>{Math.min(width * 20, 100)}%</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    padding: "25px",
-    background: "#f7f8f8",
-    color: "#333",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-
-  title: {
-    margin: 0,
-  },
-
-  tabs: {
-    display: "flex",
-    gap: "18px",
-    marginTop: "20px",
-  },
-
-  tab: {
-    border: "none",
-    background: "transparent",
-    padding: "8px 2px",
-    cursor: "pointer",
-  },
-
-  headerActions: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  addButton: {
-    border: "none",
-    background: green,
-    color: "#fff",
-    padding: "10px 16px",
-    borderRadius: "5px",
-    cursor: "pointer",
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "7px",
-  },
-
-  iconButton: {
-    border: "1px solid #eee",
-    background: "#fff",
-    width: "40px",
-    height: "40px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  viewRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "5px",
-    margin: "10px 0",
-  },
-
-  viewButton: {
-    border: "none",
-    background: "transparent",
-    fontSize: "20px",
-    cursor: "pointer",
-  },
-
-  searchBar: {
-    background: "#fff",
-    display: "flex",
-    alignItems: "center",
-    padding: "12px",
-    marginBottom: "15px",
-    border: "1px solid #eee",
-  },
-
-  searchInput: {
-    border: "none",
-    outline: "none",
-    width: "100%",
-    marginLeft: "10px",
-  },
-
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: "20px",
-  },
-
-  card: {
-    background: "#fff",
-    padding: "20px",
-    border: "1px solid #eee",
-    position: "relative",
-  },
-
-  cardTop: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-
-  projectTitle: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    cursor: "pointer",
-  },
-
-  client: {
-    color: "#999",
-    fontSize: "12px",
-    marginTop: "3px",
-  },
-
-  moreButton: {
-    border: "none",
-    background: "transparent",
-    fontSize: "20px",
-    cursor: "pointer",
-  },
-
-  menu: {
-    position: "absolute",
-    right: 0,
-    top: "30px",
-    width: "170px",
-    background: "#fff",
-    boxShadow: "0 10px 30px rgba(0,0,0,.15)",
-    zIndex: 20,
-  },
-
-  description: {
-    color: "#777",
-    lineHeight: 1.6,
-    fontSize: "13px",
-  },
-
-  progressText: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "12px",
-  },
-
-  progress: {
-    height: "5px",
-    background: "#eee",
-    margin: "8px 0",
-  },
-
-  progressFill: {
-    height: "100%",
-    background: green,
-  },
-
-  cardBottom: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: "18px",
-  },
-
-  fakeAvatars: {
-    display: "flex",
-  },
-
-  deadline: {
-    display: "flex",
-    alignItems: "center",
-    gap: "5px",
-    fontSize: "12px",
-    color: "#777",
-  },
-
-  tableCard: {
-    background: "#fff",
-    padding: "15px",
-    overflowX: "auto",
-  },
-
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-  },
-
-  tableProgress: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    minWidth: "180px",
-  },
-
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.2)",
-    zIndex: 100,
-  },
-
-  sidePanel: {
-    position: "fixed",
-    right: 0,
-    top: 0,
-    width: "350px",
-    height: "100vh",
-    background: "#fff",
-    padding: "25px",
-    boxSizing: "border-box",
-    zIndex: 101,
-  },
-
-  close: {
-    position: "absolute",
-    right: "15px",
-    top: "15px",
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: "18px",
-  },
-
-  label: {
-    display: "block",
-    color: "#777",
-    fontSize: "12px",
-    margin: "16px 0 7px",
-  },
-
-  input: {
-    width: "100%",
-    padding: "11px",
-    boxSizing: "border-box",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-  },
-
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.25)",
-    zIndex: 200,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  formModal: {
-    width: "420px",
-    maxHeight: "90vh",
-    overflowY: "auto",
-    background: "#fff",
-    padding: "25px",
-    position: "relative",
-  },
-
-  logoUpload: {
-    width: "70px",
-    height: "70px",
-    border: "1px dashed #ddd",
-    margin: "15px auto",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  textarea: {
-    width: "100%",
-    height: "100px",
-    padding: "10px",
-    boxSizing: "border-box",
-    border: "1px solid #ddd",
-    resize: "none",
-  },
-
-  twoColumns: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "12px",
-  },
-
-  saveButton: {
-    border: "none",
-    background: green,
-    color: "#fff",
-    padding: "10px 20px",
-    borderRadius: "5px",
-    cursor: "pointer",
-    marginTop: "15px",
-  },
-
-  detailsModal: {
-    width: "900px",
-    maxWidth: "95%",
-    maxHeight: "92vh",
-    overflowY: "auto",
-    background: "#fff",
-    padding: "25px",
-    position: "relative",
-  },
-
-  detailsHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  statusSelect: {
-    padding: "10px",
-    border: "1px solid #ddd",
-  },
-
-  detailsGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 250px",
-    gap: "30px",
-    marginTop: "25px",
-  },
-
-  stats: {
-    display: "flex",
-    gap: "20px",
-    flexWrap: "wrap",
-    color: "#666",
-    fontSize: "13px",
-  },
-
-  checkItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "9px 0",
-    borderBottom: "1px solid #eee",
-  },
-
-  commentBox: {
-    border: "1px solid #eee",
-    padding: "12px",
-  },
-
-  commentInput: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-  },
-
-  comment: {
-    display: "flex",
-    gap: "12px",
-    marginTop: "18px",
-  },
-
-  avatar: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    background: "#f0b49f",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    fontSize: "11px",
-    flexShrink: 0,
-  },
-
-  detailsSide: {
-    borderLeft: "1px solid #eee",
-    paddingLeft: "20px",
-  },
-
-  member: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    margin: "12px 0",
-  },
-
-  file: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "10px 0",
-    borderBottom: "1px solid #eee",
-    fontSize: "12px",
-  },
-
-  fullScreen: {
-    position: "fixed",
-    inset: 0,
-    background: "#fff",
-    zIndex: 300,
-    overflow: "auto",
-    padding: "25px",
-  },
-
-  timelineHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  closeTimeline: {
-    border: "none",
-    background: "transparent",
-    marginLeft: "15px",
-    cursor: "pointer",
-    fontSize: "20px",
-  },
-
-  timeline: {
-    display: "grid",
-    gridTemplateColumns: "220px 1fr",
-    marginTop: "25px",
-    minWidth: "1000px",
-  },
-
-  taskNames: {
-    borderRight: "1px solid #eee",
-  },
-
-  taskName: {
-    height: "48px",
-    padding: "0 15px",
-    display: "flex",
-    alignItems: "center",
-    borderBottom: "1px solid #eee",
-    position: "relative",
-    cursor: "pointer",
-  },
-
-  taskMenu: {
-    position: "absolute",
-    left: "120px",
-    top: "35px",
-    width: "170px",
-    background: "#fff",
-    boxShadow: "0 10px 30px rgba(0,0,0,.15)",
-    zIndex: 20,
-  },
-
-  chart: {
-    overflowX: "auto",
-  },
-
-  days: {
-    display: "grid",
-    gridTemplateColumns: "repeat(14, 55px)",
-    height: "40px",
-  },
-
-  chartRow: {
-    height: "48px",
-    borderBottom: "1px solid #eee",
-    backgroundImage:
-      "linear-gradient(to right, #eee 1px, transparent 1px)",
-    backgroundSize: "55px 100%",
-  },
-
-  timelineBar: {
-    height: "30px",
-    padding: "0 10px",
-    boxSizing: "border-box",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    fontSize: "11px",
-  },
-};
-
-const menuButtonStyle = `
-button {
-  font-family: inherit;
-}
-`;
-
-if (
-  typeof document !== "undefined" &&
-  !document.getElementById("project-menu-style")
-) {
-  const style = document.createElement("style");
-  style.id = "project-menu-style";
-  style.innerHTML = `
-    .project-menu-fix button {}
-    div[style*="box-shadow"] > button {
-      width: 100%;
-      border: none;
-      background: white;
-      padding: 11px 14px;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    table th,
-    table td {
-      padding: 14px;
-      border-bottom: 1px solid #eeeeee;
-      font-size: 13px;
-    }
-
-    @media (max-width: 700px) {
-      table {
-        min-width: 750px;
-      }
-    }
-  `;
-
-  document.head.appendChild(style);
 }
 
 export default Projects;

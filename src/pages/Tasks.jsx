@@ -1,4 +1,24 @@
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import {
+  FaPlus,
+  FaEllipsisH,
+  FaCalendarAlt,
+  FaPaperclip,
+  FaCommentAlt,
+  FaCheck,
+  FaTimes,
+  FaLink,
+  FaEye,
+  FaDownload,
+  FaTrash,
+  FaSearch,
+  FaSlidersH,
+  FaThLarge,
+  FaList,
+  FaChevronDown,
+  FaSmile,
+  FaImage,
+} from "react-icons/fa";
 
 import headerImage from "../assets/header-image.png";
 import backgroundImage from "../assets/background-image.png";
@@ -6,360 +26,1040 @@ import slider1 from "../assets/slider-1.png";
 import slider2 from "../assets/slider-2.png";
 import slider3 from "../assets/slider-3.png";
 
+import "../styles/Tasks.css";
+
+const members = [
+  "Regina Cooper",
+  "Jacob Hawkins",
+  "Jane Wilson",
+  "Shane Black",
+];
+
+const initialLabels = [
+  { id: 1, name: "Wireframing", color: "#27c3d4" },
+  { id: 2, name: "Design", color: "#48c774" },
+  { id: 3, name: "Frontend", color: "#42cbb2" },
+  { id: 4, name: "Backend", color: "#ff7272" },
+];
+
 const initialTasks = {
   todo: [
     {
       id: 1,
       title: "Brand Logo Design",
       description: "Make a redesign of the logo in corporate colors.",
+      labels: [2, 3],
+      attachments: 2,
+      comments: 5,
     },
     {
       id: 2,
       title: "New Header Image",
       image: headerImage,
+      labels: [2],
+      attachments: 1,
+      comments: 3,
     },
     {
       id: 3,
       title: "Wireframe for App",
-      description: "Make a wireframe for an app for a pre-presentation.",
-    },
-    {
-      id: 4,
-      title: "Template Progress",
-      description: "Designing cool UI design templates.",
-      progress: 75,
+      description:
+        "Make a wireframe for an app for a pre-presentation.",
+      labels: [1, 3],
+      comments: 1,
     },
   ],
 
   progress: [
     {
-      id: 5,
+      id: 4,
       title: "Updating Modules",
       description: "Step-by-step update of modules.",
       progress: 50,
+      labels: [1, 3],
+      attachments: 2,
+      comments: 5,
     },
     {
-      id: 6,
+      id: 5,
       title: "Template Progress",
       description: "Designing cool UI design templates.",
       progress: 75,
+      labels: [1, 3],
+      attachments: 2,
+      comments: 5,
+      checklist: [
+        { id: 1, title: "Inbox Template", done: true },
+        { id: 2, title: "Chat Template", done: true },
+        { id: 3, title: "Tasks Template", done: true },
+        { id: 4, title: "Projects Template", done: false },
+      ],
     },
   ],
 
   completed: [
     {
-      id: 7,
+      id: 6,
       title: "Refresh Photo Slider",
       slider: true,
+      labels: [1, 2],
+      attachments: 3,
+      comments: 2,
+    },
+    {
+      id: 7,
+      title: "Server Startup",
+      description:
+        "Running the server in test mode and configuring.",
+      labels: [1, 3],
+      comments: 17,
     },
     {
       id: 8,
-      title: "Server Startup",
-      description: "Running the server in test mode and configuring.",
-    },
-    {
-      id: 9,
       title: "New Background",
       image: backgroundImage,
+      labels: [2],
+      attachments: 1,
+      comments: 2,
     },
   ],
 };
 
-const colors = [
-  "#ff6b6b",
-  "#22c55e",
-  "#38bdf8",
-  "#facc15",
+const colorOptions = [
+  "#ff7272",
+  "#42cbb2",
+  "#ffc83d",
+  "#1f9d45",
+  "#27c3d4",
+  "#48c774",
+  "#95df43",
+  "#a855f7",
   "#ec4899",
-  "#14b8a6",
-  "#8b5cf6",
+  "#e5e7eb",
 ];
 
 function Tasks() {
-  const [tasks, setTasks] = useState(initialTasks);
-  const [view, setView] = useState("board");
+  const attachmentInput = useRef(null);
 
+  const [tasks, setTasks] = useState(initialTasks);
+  const [labels, setLabels] = useState(initialLabels);
+
+  const [view, setView] = useState("board");
   const [selectedTask, setSelectedTask] = useState(null);
 
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [projectOpen, setProjectOpen] = useState(false);
+
+  const [assignOpen, setAssignOpen] = useState(false);
   const [labelOpen, setLabelOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
   const [newLabelOpen, setNewLabelOpen] = useState(false);
 
-  const [labels, setLabels] = useState([
-    { name: "Wireframing", color: "#38bdf8" },
-    { name: "Design", color: "#22c55e" },
-    { name: "Frontend", color: "#14b8a6" },
-    { name: "Backend", color: "#ff6b6b" },
+  const [taskMenu, setTaskMenu] = useState(null);
+
+  const [selectedMembers, setSelectedMembers] = useState([
+    "Regina Cooper",
+    "Jacob Hawkins",
+    "Jane Wilson",
   ]);
 
-  const [labelName, setLabelName] = useState("");
-  const [labelColor, setLabelColor] = useState("#22c55e");
+  const [selectedLabels, setSelectedLabels] = useState([
+    2,
+    3,
+    4,
+  ]);
 
-  const [newTask, setNewTask] = useState("");
+  const [dueDate, setDueDate] = useState("2020-01-17T10:50");
+
+  const [labelName, setLabelName] = useState("");
+  const [labelColor, setLabelColor] = useState("#1f9d45");
+
+  const [comment, setComment] = useState("");
+
+  const [comments, setComments] = useState([
+    {
+      id: 1,
+      name: "Jane Wilson",
+      text: "Hi Cody, any progress on the project? 😊",
+      time: "5 min ago",
+    },
+    {
+      id: 2,
+      name: "Jacob Hawkins",
+      text: "Hi Jane! Yes. I just finished developing the “Chat” template.",
+      time: "1 day ago",
+      images: true,
+    },
+    {
+      id: 3,
+      name: "Regina Cooper",
+      text: "Hi Jacob. Will you be able to finish the last item of the task by tomorrow?",
+      time: "5 min ago",
+    },
+  ]);
+
+  const [checklist, setChecklist] = useState([
+    { id: 1, title: "Inbox Template", done: true },
+    { id: 2, title: "Chat Template", done: true },
+    { id: 3, title: "Tasks Template", done: true },
+    { id: 4, title: "Projects Template", done: false },
+  ]);
+
+  const [newChecklist, setNewChecklist] = useState("");
+
+  const [attachments, setAttachments] = useState([
+    {
+      id: 1,
+      name: "Wireframe UI Kit.zip",
+      size: "5.8 MB",
+      image: null,
+    },
+    {
+      id: 2,
+      name: "Picture 01.png",
+      size: "1.2 MB",
+      image: slider1,
+    },
+    {
+      id: 3,
+      name: "Picture 02.png",
+      size: "1.4 MB",
+      image: slider2,
+    },
+  ]);
+
+  const [filterSearch, setFilterSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("Completed");
+
+  const allTasks = useMemo(
+    () => [
+      ...tasks.todo.map((task) => ({
+        ...task,
+        column: "todo",
+        group: "ToDo",
+      })),
+      ...tasks.progress.map((task) => ({
+        ...task,
+        column: "progress",
+        group: "In Progress",
+      })),
+      ...tasks.completed.map((task) => ({
+        ...task,
+        column: "completed",
+        group: "Completed",
+      })),
+    ],
+    [tasks]
+  );
+
+  const openTask = (task) => {
+    setSelectedTask(task);
+    setAssignOpen(false);
+    setLabelOpen(false);
+    setDateOpen(false);
+  };
 
   const addTask = (column) => {
-    if (!newTask.trim()) return;
+    const task = {
+      id: Date.now(),
+      title: "New Task",
+      description: "New task description.",
+      labels: [2],
+      attachments: 0,
+      comments: 0,
+    };
 
-    setTasks({
-      ...tasks,
-      [column]: [
-        ...tasks[column],
-        {
-          id: Date.now(),
-          title: newTask,
-          description: "New task description",
-        },
-      ],
-    });
+    setTasks((previous) => ({
+      ...previous,
+      [column]: [...previous[column], task],
+    }));
+  };
 
-    setNewTask("");
+  const completeTask = () => {
+    if (!selectedTask) return;
+
+    const sourceColumn =
+      selectedTask.column ||
+      Object.keys(tasks).find((column) =>
+        tasks[column].some((task) => task.id === selectedTask.id)
+      );
+
+    if (!sourceColumn) return;
+
+    const completedTask = {
+      ...selectedTask,
+      column: "completed",
+    };
+
+    setTasks((previous) => ({
+      ...previous,
+      [sourceColumn]: previous[sourceColumn].filter(
+        (task) => task.id !== selectedTask.id
+      ),
+      completed:
+        sourceColumn === "completed"
+          ? previous.completed
+          : [...previous.completed, completedTask],
+    }));
+
+    setSelectedTask(completedTask);
+  };
+
+  const deleteTask = (task) => {
+    setTasks((previous) => ({
+      todo: previous.todo.filter((item) => item.id !== task.id),
+      progress: previous.progress.filter(
+        (item) => item.id !== task.id
+      ),
+      completed: previous.completed.filter(
+        (item) => item.id !== task.id
+      ),
+    }));
+
+    setTaskMenu(null);
+
+    if (selectedTask?.id === task.id) {
+      setSelectedTask(null);
+    }
+  };
+
+  const toggleMember = (member) => {
+    setSelectedMembers((previous) =>
+      previous.includes(member)
+        ? previous.filter((item) => item !== member)
+        : [...previous, member]
+    );
+  };
+
+  const toggleLabel = (id) => {
+    setSelectedLabels((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id]
+    );
   };
 
   const addLabel = () => {
     if (!labelName.trim()) return;
 
-    setLabels([
-      ...labels,
+    const label = {
+      id: Date.now(),
+      name: labelName,
+      color: labelColor,
+    };
+
+    setLabels((previous) => [...previous, label]);
+    setSelectedLabels((previous) => [...previous, label.id]);
+    setLabelName("");
+  };
+
+  const toggleChecklist = (id) => {
+    setChecklist((previous) =>
+      previous.map((item) =>
+        item.id === id ? { ...item, done: !item.done } : item
+      )
+    );
+  };
+
+  const addChecklistItem = () => {
+    if (!newChecklist.trim()) return;
+
+    setChecklist((previous) => [
+      ...previous,
       {
-        name: labelName,
-        color: labelColor,
+        id: Date.now(),
+        title: newChecklist,
+        done: false,
       },
     ]);
 
-    setLabelName("");
-    setNewLabelOpen(false);
+    setNewChecklist("");
   };
 
-  const allTasks = [
-    ...tasks.todo.map((task) => ({
-      ...task,
-      group: "Todo",
-    })),
-    ...tasks.progress.map((task) => ({
-      ...task,
-      group: "In Progress",
-    })),
-    ...tasks.completed.map((task) => ({
-      ...task,
-      group: "Completed",
-    })),
-  ];
+  const deleteChecklist = (id) => {
+    setChecklist((previous) =>
+      previous.filter((item) => item.id !== id)
+    );
+  };
+
+  const addComment = () => {
+    if (!comment.trim()) return;
+
+    setComments((previous) => [
+      ...previous,
+      {
+        id: Date.now(),
+        name: "Ronald Robertson",
+        text: comment,
+        time: "Now",
+      },
+    ]);
+
+    setComment("");
+  };
+
+  const uploadAttachment = (event) => {
+    const files = Array.from(event.target.files || []);
+
+    const uploaded = files.map((file) => ({
+      id: `${file.name}-${Date.now()}-${Math.random()}`,
+      name: file.name,
+      size: `${(file.size / 1024 / 1024).toFixed(1)} MB`,
+      image: file.type.startsWith("image/")
+        ? URL.createObjectURL(file)
+        : null,
+    }));
+
+    setAttachments((previous) => [...previous, ...uploaded]);
+    event.target.value = "";
+  };
+
+  const removeAttachment = (id) => {
+    setAttachments((previous) =>
+      previous.filter((item) => item.id !== id)
+    );
+  };
+
+  const checklistPercentage = Math.round(
+    (checklist.filter((item) => item.done).length /
+      checklist.length) *
+      100
+  );
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Design Plan⌄</h1>
+    <div className="tasks-page">
+      <div className="tasks-topbar">
+        <div className="task-project-wrapper">
+          <button
+            className="task-project-button"
+            onClick={() => setProjectOpen((previous) => !previous)}
+          >
+            Design Plan
+            <FaChevronDown />
+          </button>
+
+          {projectOpen && (
+            <div className="task-project-dropdown">
+              <h4>Projects</h4>
+
+              <div className="task-popup-search">
+                <FaSearch />
+                <input placeholder="Search Project..." />
+              </div>
+
+              {[
+                "Design Plans",
+                "Wireframe UI Kit",
+                "Admin Dashboard",
+                "Sochi - Hotel Booking",
+              ].map((project, index) => (
+                <button
+                  key={project}
+                  onClick={() => setProjectOpen(false)}
+                >
+                  <span>▱</span>
+                  {project}
+                  {index === 0 && <FaCheck />}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div style={styles.headerRight}>
-          <div style={styles.avatars}>
-            {["J", "R", "D", "S"].map((item) => (
-              <span key={item} style={styles.avatar}>
-                {item}
-              </span>
+        <div className="tasks-top-actions">
+          <div className="task-member-avatars">
+            {["R", "J", "J", "S"].map((member, index) => (
+              <span key={`${member}-${index}`}>{member}</span>
             ))}
 
-            <button style={styles.plusAvatar}>+</button>
+            <button>
+              <FaPlus />
+            </button>
           </div>
 
           <button
-            style={styles.iconButton}
-            onClick={() =>
-              setView(view === "board" ? "list" : "board")
-            }
+            className="task-icon-button"
+            onClick={() => setFilterOpen(true)}
           >
-            {view === "board" ? "☰" : "▦"}
+            <FaSlidersH />
           </button>
 
+          <div className="task-add-wrapper">
+            <button
+              className="task-add-button"
+              onClick={() =>
+                setAddMenuOpen((previous) => !previous)
+              }
+            >
+              Add
+              <FaChevronDown />
+            </button>
+
+            {addMenuOpen && (
+              <div className="task-add-menu">
+                <button
+                  onClick={() => {
+                    addTask("todo");
+                    setAddMenuOpen(false);
+                  }}
+                >
+                  Task
+                </button>
+
+                <button
+                  onClick={() => {
+                    setView("board");
+                    setAddMenuOpen(false);
+                  }}
+                >
+                  Board
+                </button>
+
+                <button
+                  onClick={() => setAddMenuOpen(false)}
+                >
+                  Project
+                </button>
+
+                <button
+                  onClick={() => setAddMenuOpen(false)}
+                >
+                  Invite
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
-            style={styles.addButton}
-            onClick={() => {
-              setNewTask("New Task");
-              addTask("todo");
-            }}
+            className="task-icon-button"
+            onClick={() =>
+              setView((previous) =>
+                previous === "board" ? "list" : "board"
+              )
+            }
           >
-            Add⌄
+            {view === "board" ? <FaList /> : <FaThLarge />}
           </button>
         </div>
       </div>
 
       {view === "board" ? (
-        <div style={styles.board}>
+        <div className="task-board">
           <TaskColumn
             title="TODO"
-            color="#facc15"
+            color="#ffc83d"
             tasks={tasks.todo}
-            onTask={setSelectedTask}
-            newTask={newTask}
-            setNewTask={setNewTask}
-            addTask={() => addTask("todo")}
+            labels={labels}
+            onTask={openTask}
+            onAdd={() => addTask("todo")}
+            taskMenu={taskMenu}
+            setTaskMenu={setTaskMenu}
+            onDelete={deleteTask}
           />
 
           <TaskColumn
             title="IN PROGRESS"
-            color="#22d3ee"
+            color="#27c3d4"
             tasks={tasks.progress}
-            onTask={setSelectedTask}
-            newTask={newTask}
-            setNewTask={setNewTask}
-            addTask={() => addTask("progress")}
+            labels={labels}
+            onTask={openTask}
+            onAdd={() => addTask("progress")}
+            taskMenu={taskMenu}
+            setTaskMenu={setTaskMenu}
+            onDelete={deleteTask}
           />
 
           <TaskColumn
             title="COMPLETED"
-            color="#22c55e"
+            color="#48c774"
             tasks={tasks.completed}
-            onTask={setSelectedTask}
-            newTask={newTask}
-            setNewTask={setNewTask}
-            addTask={() => addTask("completed")}
+            labels={labels}
+            onTask={openTask}
+            onAdd={() => addTask("completed")}
+            taskMenu={taskMenu}
+            setTaskMenu={setTaskMenu}
+            onDelete={deleteTask}
           />
         </div>
       ) : (
-        <div style={styles.listView}>
-          {["Todo", "In Progress", "Completed"].map(
-            (group) => (
-              <div key={group} style={styles.listSection}>
-                <h3>⌄ {group}</h3>
+        <div className="task-list-view">
+          {[
+            ["ToDo", "todo"],
+            ["In Progress", "progress"],
+            ["Completed", "completed"],
+          ].map(([title, column]) => (
+            <section className="task-list-section" key={column}>
+              <div className="task-list-heading">
+                <h3>
+                  <FaChevronDown />
+                  {title} ({tasks[column].length})
+                </h3>
 
-                {allTasks
-                  .filter((task) => task.group === group)
-                  .map((task) => (
-                    <div
-                      key={task.id}
-                      style={styles.listTask}
-                      onClick={() => setSelectedTask(task)}
-                    >
-                      <span>○</span>
-
-                      <span style={{ flex: 1 }}>
-                        {task.title}
-                      </span>
-
-                      <span style={styles.listDate}>
-                        ◫ Jun 17
-                      </span>
-
-                      <span style={styles.dotGreen}></span>
-                      <span style={styles.dotBlue}></span>
-
-                      <span style={styles.smallAvatar}>
-                        J
-                      </span>
-                    </div>
-                  ))}
-
-                <button style={styles.addTaskText}>
-                  + Add Task
-                </button>
+                <FaEllipsisH />
               </div>
-            )
-          )}
-        </div>
-      )}
 
-      {selectedTask && (
-        <>
-          <div
-            style={styles.overlay}
-            onClick={() => setSelectedTask(null)}
-          />
-
-          <div style={styles.taskPanel}>
-            <div style={styles.panelHeader}>
-              <button style={styles.completeButton}>
-                ✓ Complete
-              </button>
-
-              <span>◉ 2⌄</span>
-
-              <div style={{ marginLeft: "auto" }}>
-                🔗 &nbsp; ⋯ &nbsp;
+              {tasks[column].map((task) => (
                 <button
-                  style={styles.close}
-                  onClick={() => setSelectedTask(null)}
+                  className="task-list-row"
+                  key={task.id}
+                  onClick={() =>
+                    openTask({
+                      ...task,
+                      column,
+                    })
+                  }
                 >
-                  ✕
+                  <span className="task-list-check">
+                    {column === "completed" && <FaCheck />}
+                  </span>
+
+                  <strong>{task.title}</strong>
+
+                  <div className="task-list-row-right">
+                    <span>
+                      <FaCalendarAlt />
+                      Jun 17
+                    </span>
+
+                    <div className="task-list-labels">
+                      {(task.labels || []).map((id) => {
+                        const label = labels.find(
+                          (item) => item.id === id
+                        );
+
+                        return label ? (
+                          <i
+                            key={id}
+                            style={{
+                              backgroundColor: label.color,
+                            }}
+                          />
+                        ) : null;
+                      })}
+                    </div>
+
+                    <span className="task-mini-avatar">J</span>
+                    <span className="task-mini-avatar">R</span>
+                  </div>
                 </button>
-              </div>
-            </div>
-
-            <h2>{selectedTask.title}</h2>
-
-            <div style={styles.infoGrid}>
-              <div>
-                <label style={styles.label}>ASSIGNED TO</label>
-
-                <div style={styles.avatars}>
-                  <span style={styles.avatar}>J</span>
-                  <span style={styles.avatar}>R</span>
-                  <span style={styles.avatar}>D</span>
-                  <button style={styles.plusAvatar}>+</button>
-                </div>
-              </div>
-
-              <div>
-                <label style={styles.label}>CREATED BY</label>
-
-                <div style={styles.person}>
-                  <span style={styles.avatar}>S</span>
-                  Shane Black
-                </div>
-              </div>
-            </div>
-
-            <label style={styles.label}>LABELS</label>
-
-            <div style={styles.labelRow}>
-              {labels.slice(1, 4).map((label) => (
-                <span
-                  key={label.name}
-                  style={{
-                    ...styles.tag,
-                    background: label.color,
-                  }}
-                >
-                  {label.name}
-                </span>
               ))}
 
               <button
-                style={styles.plusAvatar}
-                onClick={() => setLabelOpen(!labelOpen)}
+                className="task-list-add"
+                onClick={() => addTask(column)}
               >
-                +
+                <FaPlus />
+                Add Task
+              </button>
+            </section>
+          ))}
+        </div>
+      )}
+
+      {filterOpen && (
+        <>
+          <div
+            className="task-filter-overlay"
+            onClick={() => setFilterOpen(false)}
+          />
+
+          <aside className="task-filter-panel">
+            <div className="task-filter-title">
+              <h2>Filter</h2>
+
+              <button onClick={() => setFilterOpen(false)}>
+                <FaTimes />
               </button>
             </div>
 
-            {labelOpen && (
-              <div style={styles.labelPopup}>
-                <h3>Labels</h3>
+            <div className="task-filter-search">
+              <FaSearch />
 
-                <input
-                  style={styles.input}
-                  placeholder="Search Label..."
+              <input
+                placeholder="Search Tasks..."
+                value={filterSearch}
+                onChange={(event) =>
+                  setFilterSearch(event.target.value)
+                }
+              />
+            </div>
+
+            <label>Labels</label>
+
+            <div className="task-filter-labels">
+              {labels.slice(1).map((label) => (
+                <button
+                  key={label.id}
+                  style={{ backgroundColor: label.color }}
+                >
+                  {label.name}
+                  {selectedLabels.includes(label.id) && (
+                    <FaCheck />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <label>Members</label>
+
+            <div className="task-filter-field">
+              <span className="task-mini-avatar">S</span>
+              Shane Black
+              <FaTimes />
+            </div>
+
+            <label>Due Date</label>
+
+            <div className="task-filter-field">
+              <FaCalendarAlt />
+              Due anytime
+              <FaChevronDown />
+            </div>
+
+            <label>Status</label>
+
+            <select
+              value={filterStatus}
+              onChange={(event) =>
+                setFilterStatus(event.target.value)
+              }
+            >
+              <option>Completed</option>
+              <option>ToDo</option>
+              <option>In Progress</option>
+            </select>
+
+            <div className="task-filter-actions">
+              <button onClick={() => setFilterOpen(false)}>
+                Apply Filters
+              </button>
+
+              <button
+                onClick={() => {
+                  setFilterSearch("");
+                  setFilterStatus("Completed");
+                }}
+              >
+                Reset all Filters
+              </button>
+            </div>
+          </aside>
+        </>
+      )}
+
+      {selectedTask && (
+        <div className="task-modal-overlay">
+          <div className="task-details-modal">
+            <div className="task-details-header">
+              <button
+                className="task-complete-button"
+                onClick={completeTask}
+              >
+                <FaCheck />
+                Complete
+              </button>
+
+              <button className="task-watch-button">
+                <FaEye />
+                2
+                <FaChevronDown />
+              </button>
+
+              <div className="task-details-header-right">
+                <button>
+                  <FaLink />
+                </button>
+
+                <button>
+                  <FaEllipsisH />
+                </button>
+
+                <button onClick={() => setSelectedTask(null)}>
+                  <FaTimes />
+                </button>
+              </div>
+            </div>
+
+            <div className="task-details-layout">
+              <main className="task-details-main">
+                <h2>{selectedTask.title}</h2>
+
+                <div className="task-mobile-info">
+                  <TaskInfo
+                    labels={labels}
+                    selectedLabels={selectedLabels}
+                    selectedMembers={selectedMembers}
+                    dueDate={dueDate}
+                    setAssignOpen={setAssignOpen}
+                    setLabelOpen={setLabelOpen}
+                    setDateOpen={setDateOpen}
+                  />
+                </div>
+
+                <section className="task-description-section">
+                  <h4>DESCRIPTION</h4>
+
+                  <p>
+                    We need to develop several options (Inbox
+                    template, Chat template, Tasks template,
+                    Projects template) of cool user interface
+                    design templates – to carefully work out the
+                    smallest details.
+                  </p>
+                </section>
+
+                <section className="task-checklist-section">
+                  <h4>CHECKLIST ({checklistPercentage}%)</h4>
+
+                  <div className="task-progress-track">
+                    <div
+                      style={{
+                        width: `${checklistPercentage}%`,
+                      }}
+                    />
+                  </div>
+
+                  {checklist.map((item) => (
+                    <div
+                      className={`task-checklist-row ${
+                        item.done ? "completed" : ""
+                      }`}
+                      key={item.id}
+                    >
+                      <button
+                        onClick={() =>
+                          toggleChecklist(item.id)
+                        }
+                      >
+                        {item.done ? <FaCheck /> : null}
+                      </button>
+
+                      <span>{item.title}</span>
+
+                      <FaEllipsisH />
+
+                      <button
+                        onClick={() =>
+                          deleteChecklist(item.id)
+                        }
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+
+                  <div className="task-new-checklist">
+                    <FaPlus />
+
+                    <input
+                      placeholder="Add Checklist Item"
+                      value={newChecklist}
+                      onChange={(event) =>
+                        setNewChecklist(event.target.value)
+                      }
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          addChecklistItem();
+                        }
+                      }}
+                    />
+                  </div>
+                </section>
+
+                <section className="task-attachments-section">
+                  <h4>ATTACHMENTS</h4>
+
+                  {attachments.map((attachment) => (
+                    <div
+                      className="task-attachment-row"
+                      key={attachment.id}
+                    >
+                      {attachment.image ? (
+                        <img
+                          src={attachment.image}
+                          alt={attachment.name}
+                        />
+                      ) : (
+                        <div className="task-file-icon">
+                          <FaPaperclip />
+                        </div>
+                      )}
+
+                      <div>
+                        <strong>{attachment.name}</strong>
+                        <span>
+                          Uploaded on 15.01.2020 at 11:50
+                        </span>
+                        <small>{attachment.size}</small>
+                      </div>
+
+                      <button>
+                        <FaDownload />
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          removeAttachment(attachment.id)
+                        }
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  ))}
+
+                  <input
+                    ref={attachmentInput}
+                    type="file"
+                    multiple
+                    hidden
+                    onChange={uploadAttachment}
+                  />
+
+                  <button
+                    className="task-text-action"
+                    onClick={() =>
+                      attachmentInput.current?.click()
+                    }
+                  >
+                    <FaPlus />
+                    Add Attachment
+                  </button>
+                </section>
+
+                <section className="task-comments-section">
+                  <div className="task-comment-tabs">
+                    <button className="active">COMMENTS</button>
+                    <button>ACTIVITY</button>
+                  </div>
+
+                  <div className="task-comment-box">
+                    <textarea
+                      placeholder="Add Comment..."
+                      value={comment}
+                      onChange={(event) =>
+                        setComment(event.target.value)
+                      }
+                    />
+
+                    <div>
+                      <button onClick={addComment}>Comment</button>
+
+                      <span>
+                        <FaPaperclip />
+                        <FaSmile />
+                        <FaImage />
+                      </span>
+                    </div>
+                  </div>
+
+                  {comments.map((item) => (
+                    <div className="task-comment" key={item.id}>
+                      <span className="task-comment-avatar">
+                        {item.name.charAt(0)}
+                      </span>
+
+                      <div>
+                        <div>
+                          <strong>{item.name}</strong>
+                          <small>{item.time}</small>
+                        </div>
+
+                        <p>{item.text}</p>
+
+                        {item.images && (
+                          <div className="task-comment-images">
+                            <img src={slider1} alt="" />
+                            <img src={slider2} alt="" />
+                            <img src={slider3} alt="" />
+                            <span>+3</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              </main>
+
+              <aside className="task-details-side">
+                <TaskInfo
+                  labels={labels}
+                  selectedLabels={selectedLabels}
+                  selectedMembers={selectedMembers}
+                  dueDate={dueDate}
+                  setAssignOpen={setAssignOpen}
+                  setLabelOpen={setLabelOpen}
+                  setDateOpen={setDateOpen}
                 />
 
-                {labels.map((label) => (
-                  <div
-                    key={label.name}
-                    style={styles.labelOption}
+                <div className="task-created-time">
+                  <strong>Created</strong>
+                  <span>January 2, 2020 4:30 PM</span>
+
+                  <strong>Updated</strong>
+                  <span>January 2, 2020 4:55 PM</span>
+                </div>
+              </aside>
+            </div>
+
+            {assignOpen && (
+              <div className="task-assign-popup">
+                <h4>Assign To</h4>
+
+                <div className="task-popup-search">
+                  <FaSearch />
+                  <input placeholder="Find Person..." />
+                </div>
+
+                {members.map((member) => (
+                  <button
+                    key={member}
+                    onClick={() => toggleMember(member)}
+                  >
+                    <span className="task-mini-avatar">
+                      {member.charAt(0)}
+                    </span>
+
+                    {member}
+
+                    {selectedMembers.includes(member) && (
+                      <FaCheck />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {labelOpen && (
+              <div className="task-label-popup">
+                <h4>Labels</h4>
+
+                <div className="task-popup-search">
+                  <FaSearch />
+                  <input placeholder="Search Label..." />
+                </div>
+
+                {labels.slice(1).map((label) => (
+                  <button
+                    key={label.id}
+                    onClick={() => toggleLabel(label.id)}
                   >
                     <span
                       style={{
-                        ...styles.tag,
-                        background: label.color,
+                        backgroundColor: label.color,
                       }}
                     >
                       {label.name}
                     </span>
 
-                    <span>✓</span>
-                  </div>
+                    {selectedLabels.includes(label.id) && (
+                      <FaCheck />
+                    )}
+                  </button>
                 ))}
 
                 <button
-                  style={styles.addLabelButton}
+                  className="task-add-label-button"
                   onClick={() => {
                     setLabelOpen(false);
                     setNewLabelOpen(true);
@@ -370,164 +1070,76 @@ function Tasks() {
               </div>
             )}
 
-            <label style={styles.label}>DUE DATE</label>
+            {dateOpen && (
+              <div className="task-date-popup">
+                <input
+                  type="datetime-local"
+                  value={dueDate}
+                  onChange={(event) =>
+                    setDueDate(event.target.value)
+                  }
+                />
 
-            <input
-              type="datetime-local"
-              style={styles.input}
-            />
-
-            <label style={styles.label}>DESCRIPTION</label>
-
-            <p style={styles.description}>
-              We need to develop several options (Inbox
-              template, Chat template, Tasks template, Projects
-              template) of cool user interface design templates
-              to carefully work out the smallest details.
-            </p>
-
-            <label style={styles.label}>CHECKLIST (75%)</label>
-
-            <div style={styles.progressTrack}>
-              <div style={styles.progressFill}></div>
-            </div>
-
-            {[
-              "Inbox Template",
-              "Chat Template",
-              "Tasks Template",
-              "Projects Template",
-            ].map((item, index) => (
-              <div key={item} style={styles.checkItem}>
-                <span>{index < 3 ? "✓" : "○"}</span>
-                <span style={{ flex: 1 }}>{item}</span>
-                <span>⋮</span>
-                <span>♙</span>
+                <button
+                  onClick={() => {
+                    setDueDate("");
+                    setDateOpen(false);
+                  }}
+                >
+                  Clear Due Date
+                </button>
               </div>
-            ))}
-
-            <button style={styles.addTaskText}>
-              + Add Checklist Item
-            </button>
-
-            <label style={styles.label}>ATTACHMENTS</label>
-
-            <Attachment name="Wireframe UI Kit.zip" />
-
-            <div style={styles.attachment}>
-              <img src={slider1} style={styles.attachImage} />
-
-              <div style={{ flex: 1 }}>
-                <strong>Picture 01.png</strong>
-                <p style={styles.muted}>
-                  Uploaded on 15.01.2020 at 11:50
-                </p>
-              </div>
-
-              <span>⇩</span>
-              <span>♙</span>
-            </div>
-
-            <div style={styles.attachment}>
-              <img src={slider2} style={styles.attachImage} />
-
-              <div style={{ flex: 1 }}>
-                <strong>Picture 02.png</strong>
-                <p style={styles.muted}>
-                  Uploaded on 15.01.2020 at 11:50
-                </p>
-              </div>
-
-              <span>⇩</span>
-              <span>♙</span>
-            </div>
-
-            <button style={styles.addTaskText}>
-              + Add Attachment
-            </button>
-
-            <div style={styles.commentTabs}>
-              <span style={styles.activeCommentTab}>
-                COMMENTS
-              </span>
-              <span>ACTIVITY</span>
-            </div>
-
-            <div style={styles.commentBox}>
-              <input
-                style={styles.commentInput}
-                placeholder="Add Comment..."
-              />
-
-              <button style={styles.commentButton}>
-                Comment
-              </button>
-            </div>
-
-            <Comment
-              name="Jane Wilson"
-              text="Hi Cody, any progress on the project? 😊"
-            />
-
-            <Comment
-              name="Jacob Hawkins"
-              text="Hi Jane! Yes, I just finished developing the Chat template."
-            />
-
-            <div style={styles.commentImages}>
-              <img src={slider1} />
-              <img src={slider2} />
-              <img src={slider3} />
-              <span>+3</span>
-            </div>
-
-            <Comment
-              name="Regina Cooper"
-              text="Hi Jacob. Will you be able to finish the last item of the task by tomorrow?"
-            />
+            )}
           </div>
-        </>
+        </div>
       )}
 
       {newLabelOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.labelModal}>
-            <button
-              style={styles.modalClose}
-              onClick={() => setNewLabelOpen(false)}
-            >
-              ✕
-            </button>
+        <div className="task-modal-overlay task-label-overlay">
+          <div className="task-new-label-modal">
+            <div className="task-new-label-title">
+              <h2>Add New Label</h2>
 
-            <h2>Add New Label</h2>
+              <button onClick={() => setNewLabelOpen(false)}>
+                <FaTimes />
+              </button>
+            </div>
 
             {labels.map((label) => (
-              <div key={label.name} style={styles.existingLabel}>
-                <span
+              <div className="task-label-editor-row" key={label.id}>
+                <i
                   style={{
-                    ...styles.colorSquare,
-                    background: label.color,
+                    backgroundColor: label.color,
                   }}
-                ></span>
+                />
 
-                <span style={{ flex: 1 }}>{label.name}</span>
+                <span>{label.name}</span>
 
-                <span>✎</span>
-                <span>♙</span>
+                <FaSlidersH />
+
+                <button
+                  onClick={() =>
+                    setLabels((previous) =>
+                      previous.filter(
+                        (item) => item.id !== label.id
+                      )
+                    )
+                  }
+                >
+                  <FaTrash />
+                </button>
               </div>
             ))}
 
-            <div style={styles.existingLabel}>
-              <span
+            <div className="task-label-editor-row">
+              <i
                 style={{
-                  ...styles.colorSquare,
-                  background: labelColor,
+                  backgroundColor: labelColor,
                 }}
-              ></span>
+              />
 
               <input
-                style={styles.labelNameInput}
-                placeholder="Type an item label..."
+                placeholder="Type a name label..."
                 value={labelName}
                 onChange={(event) =>
                   setLabelName(event.target.value)
@@ -535,32 +1147,34 @@ function Tasks() {
               />
             </div>
 
-            <button style={styles.addTaskText}>
-              + Add Label
+            <button
+              className="task-text-action"
+              onClick={addLabel}
+            >
+              <FaPlus />
+              Add Label
             </button>
 
-            <h4>Change Color</h4>
+            <div className="task-label-colors">
+              <h4>Change Color</h4>
 
-            <div style={styles.colorRow}>
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  onClick={() => setLabelColor(color)}
-                  style={{
-                    ...styles.colorButton,
-                    background: color,
-                    border:
-                      labelColor === color
-                        ? "3px solid #222"
-                        : "none",
-                  }}
-                />
-              ))}
+              <div>
+                {colorOptions.map((color) => (
+                  <button
+                    key={color}
+                    className={
+                      labelColor === color ? "active" : ""
+                    }
+                    style={{ backgroundColor: color }}
+                    onClick={() => setLabelColor(color)}
+                  />
+                ))}
+              </div>
             </div>
 
             <button
-              style={styles.doneButton}
-              onClick={addLabel}
+              className="task-label-done"
+              onClick={() => setNewLabelOpen(false)}
             >
               Done
             </button>
@@ -571,680 +1185,295 @@ function Tasks() {
   );
 }
 
+function TaskInfo({
+  labels,
+  selectedLabels,
+  selectedMembers,
+  dueDate,
+  setAssignOpen,
+  setLabelOpen,
+  setDateOpen,
+}) {
+  return (
+    <div className="task-info-content">
+      <div className="task-info-block">
+        <div className="task-info-heading">
+          <h4>CREATED BY</h4>
+        </div>
+
+        <div className="task-created-user">
+          <span className="task-mini-avatar">S</span>
+          Shane Black
+        </div>
+      </div>
+
+      <div className="task-info-block">
+        <div className="task-info-heading">
+          <h4>ASSIGNED TO</h4>
+
+          <button onClick={() => setAssignOpen(true)}>
+            <FaPlus />
+          </button>
+        </div>
+
+        <div className="task-assigned-avatars">
+          {selectedMembers.slice(0, 3).map((member) => (
+            <button
+              key={member}
+              className="task-mini-avatar"
+              onClick={() => setAssignOpen(true)}
+            >
+              {member.charAt(0)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="task-info-block">
+        <div className="task-info-heading">
+          <h4>DUE DATE</h4>
+        </div>
+
+        <button
+          className="task-due-date"
+          onClick={() => setDateOpen(true)}
+        >
+          <FaCalendarAlt />
+          {dueDate
+            ? "Jan 17, 2020, 10:50 AM"
+            : "Add Due Date"}
+          <FaChevronDown />
+        </button>
+      </div>
+
+      <div className="task-info-block">
+        <div className="task-info-heading">
+          <h4>LABELS</h4>
+
+          <button onClick={() => setLabelOpen(true)}>
+            <FaPlus />
+          </button>
+        </div>
+
+        <div className="task-selected-labels">
+          {selectedLabels.map((id) => {
+            const label = labels.find((item) => item.id === id);
+
+            return label ? (
+              <span
+                key={label.id}
+                style={{
+                  backgroundColor: label.color,
+                }}
+              >
+                {label.name}
+              </span>
+            ) : null;
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function TaskColumn({
   title,
   color,
   tasks,
+  labels,
   onTask,
-  newTask,
-  setNewTask,
-  addTask,
+  onAdd,
+  taskMenu,
+  setTaskMenu,
+  onDelete,
 }) {
   return (
-    <div style={styles.column}>
+    <section className="task-column">
       <div
-        style={{
-          ...styles.columnLine,
-          background: color,
-        }}
-      ></div>
+        className="task-column-color"
+        style={{ backgroundColor: color }}
+      />
 
-      <div style={styles.columnHeader}>
-        <span>{title}</span>
-        <span>{tasks.length}</span>
-        <span style={{ marginLeft: "auto" }}>⋯</span>
+      <div className="task-column-heading">
+        <h3>
+          {title}
+          <span>{tasks.length}</span>
+        </h3>
+
+        <FaEllipsisH />
       </div>
 
-      {tasks.map((task) => (
-        <TaskCard
-          key={task.id}
-          task={task}
-          onClick={() => onTask(task)}
-        />
-      ))}
-
-      <div style={styles.quickAdd}>
-        <input
-          value={newTask}
-          onChange={(event) =>
-            setNewTask(event.target.value)
-          }
-          placeholder="New task..."
-          style={styles.quickInput}
-        />
-
-        <button style={styles.quickButton} onClick={addTask}>
-          +
-        </button>
+      <div className="task-column-cards">
+        {tasks.map((task) => (
+          <TaskCard
+            key={task.id}
+            task={task}
+            labels={labels}
+            onTask={() => onTask(task)}
+            taskMenu={taskMenu}
+            setTaskMenu={setTaskMenu}
+            onDelete={() => onDelete(task)}
+          />
+        ))}
       </div>
-    </div>
+
+      <button className="task-column-add" onClick={onAdd}>
+        <FaPlus />
+      </button>
+    </section>
   );
 }
 
-function TaskCard({ task, onClick }) {
+function TaskCard({
+  task,
+  labels,
+  onTask,
+  taskMenu,
+  setTaskMenu,
+  onDelete,
+}) {
   return (
-    <div style={styles.taskCard} onClick={onClick}>
-      <div style={styles.cardTop}>
-        <span style={styles.smallLine}></span>
-        <span>◫ Jun 17</span>
+    <article className="task-card" onClick={onTask}>
+      <div className="task-card-top">
+        <div className="task-card-label-lines">
+          {(task.labels || []).slice(0, 2).map((id) => {
+            const label = labels.find((item) => item.id === id);
+
+            return label ? (
+              <i
+                key={id}
+                style={{
+                  backgroundColor: label.color,
+                }}
+              />
+            ) : null;
+          })}
+        </div>
+
+        <span>
+          <FaCalendarAlt />
+          Jun 17
+        </span>
       </div>
 
-      <h3 style={styles.cardTitle}>{task.title}</h3>
+      <h4>{task.title}</h4>
 
-      {task.description && (
-        <p style={styles.cardDescription}>
-          {task.description}
-        </p>
-      )}
+      {task.description && <p>{task.description}</p>}
 
       {task.image && (
         <img
+          className="task-card-image"
           src={task.image}
-          alt=""
-          style={styles.cardImage}
+          alt={task.title}
         />
       )}
 
       {task.slider && (
-        <div style={styles.sliderRow}>
-          <img src={slider1} />
-          <img src={slider2} />
-          <img src={slider3} />
+        <div className="task-slider-images">
+          <img src={slider1} alt="" />
+          <img src={slider2} alt="" />
+          <img src={slider3} alt="" />
         </div>
       )}
 
       {task.progress && (
-        <>
-          <div style={styles.progressText}>
+        <div className="task-card-progress-section">
+          <div>
             <span>SUB-TASKS: 4</span>
             <span>{task.progress}%</span>
           </div>
 
-          <div style={styles.cardProgress}>
-            <div
+          <div className="task-card-progress">
+            <i
               style={{
-                ...styles.cardProgressFill,
                 width: `${task.progress}%`,
               }}
-            ></div>
+            />
           </div>
-        </>
+        </div>
       )}
 
-      <div style={styles.cardFooter}>
-        <span>♧ 2</span>
-        <span>▢ 5</span>
+      {task.checklist && (
+        <div className="task-card-checklist">
+          {task.checklist.map((item) => (
+            <div key={item.id}>
+              <span>{item.title}</span>
 
-        <div style={styles.cardAvatars}>
-          <span style={styles.smallAvatar}>J</span>
-          <span style={styles.smallAvatar}>R</span>
+              <i className={item.done ? "done" : ""}>
+                {item.done && <FaCheck />}
+              </i>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="task-card-footer">
+        <div>
+          {task.attachments > 0 && (
+            <span>
+              <FaPaperclip />
+              {task.attachments}
+            </span>
+          )}
+
+          {task.comments > 0 && (
+            <span>
+              <FaCommentAlt />
+              {task.comments}
+            </span>
+          )}
+        </div>
+
+        <div className="task-card-avatars">
+          <span>J</span>
+          <span>R</span>
         </div>
       </div>
-    </div>
-  );
-}
 
-function Attachment({ name }) {
-  return (
-    <div style={styles.attachment}>
-      <div style={styles.fileIcon}>↕</div>
+      <div className="task-card-menu-wrapper">
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
 
-      <div style={{ flex: 1 }}>
-        <strong>{name}</strong>
-        <p style={styles.muted}>
-          Uploaded on 15.01.2020 at 11:45
-        </p>
+            setTaskMenu(
+              taskMenu === task.id ? null : task.id
+            );
+          }}
+        >
+          <FaEllipsisH />
+        </button>
+
+        {taskMenu === task.id && (
+          <div
+            className="task-card-menu"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button>Move</button>
+            <button>Sort Tasks</button>
+            <button>Complete Tasks</button>
+            <button>Archive Tasks</button>
+
+            <button
+              className="delete"
+              onClick={onDelete}
+            >
+              <FaTrash />
+              Delete Tasks
+            </button>
+
+            <div className="task-menu-colors">
+              {colorOptions.map((color) => (
+                <i
+                  key={color}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-
-      <span>⇩</span>
-      <span>♙</span>
-    </div>
+    </article>
   );
 }
-
-function Comment({ name, text }) {
-  return (
-    <div style={styles.comment}>
-      <span style={styles.avatar}>
-        {name.charAt(0)}
-      </span>
-
-      <div>
-        <strong>{name}</strong>
-        <span style={styles.time}>5 min ago</span>
-        <p>{text}</p>
-      </div>
-    </div>
-  );
-}
-
-const styles = {
-  page: {
-    padding: "25px",
-    minHeight: "100vh",
-    background: "#f5f7f6",
-    color: "#333",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "25px",
-  },
-
-  title: {
-    margin: 0,
-    fontSize: "24px",
-  },
-
-  headerRight: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-  },
-
-  avatars: {
-    display: "flex",
-    alignItems: "center",
-  },
-
-  avatar: {
-    width: "30px",
-    height: "30px",
-    borderRadius: "50%",
-    background: "#e8896b",
-    color: "#fff",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: "-5px",
-    border: "2px solid #fff",
-    fontSize: "12px",
-  },
-
-  plusAvatar: {
-    width: "28px",
-    height: "28px",
-    borderRadius: "50%",
-    border: "none",
-    background: "#fff",
-    cursor: "pointer",
-  },
-
-  iconButton: {
-    border: "1px solid #eee",
-    background: "#fff",
-    padding: "10px",
-    cursor: "pointer",
-  },
-
-  addButton: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "10px 22px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  board: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(260px, 1fr))",
-    gap: "20px",
-    overflowX: "auto",
-  },
-
-  column: {
-    background: "#f0f2f1",
-    padding: "15px",
-    minWidth: "260px",
-  },
-
-  columnLine: {
-    height: "3px",
-    margin: "-15px -15px 15px",
-  },
-
-  columnHeader: {
-    display: "flex",
-    gap: "10px",
-    color: "#777",
-    fontSize: "13px",
-    marginBottom: "15px",
-  },
-
-  taskCard: {
-    background: "#fff",
-    padding: "15px",
-    marginBottom: "12px",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-
-  cardTop: {
-    display: "flex",
-    justifyContent: "space-between",
-    color: "#999",
-    fontSize: "11px",
-  },
-
-  smallLine: {
-    width: "25px",
-    height: "3px",
-    background: "#22c55e",
-  },
-
-  cardTitle: {
-    fontSize: "14px",
-    margin: "12px 0 5px",
-  },
-
-  cardDescription: {
-    color: "#777",
-    fontSize: "12px",
-    lineHeight: "1.5",
-  },
-
-  cardImage: {
-    width: "100%",
-    height: "140px",
-    objectFit: "cover",
-    marginTop: "10px",
-  },
-
-  sliderRow: {
-    display: "flex",
-    gap: "7px",
-    marginTop: "10px",
-  },
-
-  cardFooter: {
-    display: "flex",
-    gap: "12px",
-    marginTop: "15px",
-    color: "#888",
-    fontSize: "12px",
-  },
-
-  cardAvatars: {
-    marginLeft: "auto",
-  },
-
-  smallAvatar: {
-    width: "22px",
-    height: "22px",
-    borderRadius: "50%",
-    background: "#d97757",
-    color: "#fff",
-    display: "inline-flex",
-    justifyContent: "center",
-    alignItems: "center",
-    fontSize: "9px",
-    marginLeft: "-4px",
-  },
-
-  sliderRowImg: {
-    width: "30%",
-  },
-
-  progressText: {
-    display: "flex",
-    justifyContent: "space-between",
-    color: "#777",
-    fontSize: "10px",
-    marginTop: "12px",
-  },
-
-  cardProgress: {
-    height: "4px",
-    background: "#eee",
-    marginTop: "5px",
-  },
-
-  cardProgressFill: {
-    height: "100%",
-    background: "#16a34a",
-  },
-
-  quickAdd: {
-    display: "flex",
-    marginTop: "10px",
-  },
-
-  quickInput: {
-    width: "100%",
-    border: "none",
-    padding: "10px",
-  },
-
-  quickButton: {
-    border: "none",
-    background: "#dcfce7",
-    color: "#16a34a",
-    padding: "10px 15px",
-    cursor: "pointer",
-  },
-
-  listView: {
-    background: "#fff",
-    padding: "20px",
-  },
-
-  listSection: {
-    marginBottom: "30px",
-  },
-
-  listTask: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-    border: "1px solid #eee",
-    padding: "13px",
-    marginBottom: "7px",
-    cursor: "pointer",
-  },
-
-  listDate: {
-    color: "#888",
-    fontSize: "12px",
-  },
-
-  dotGreen: {
-    width: "7px",
-    height: "7px",
-    borderRadius: "50%",
-    background: "#22c55e",
-  },
-
-  dotBlue: {
-    width: "7px",
-    height: "7px",
-    borderRadius: "50%",
-    background: "#22d3ee",
-  },
-
-  addTaskText: {
-    border: "none",
-    background: "transparent",
-    color: "#16a34a",
-    padding: "10px 0",
-    cursor: "pointer",
-  },
-
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.25)",
-    zIndex: 100,
-  },
-
-  taskPanel: {
-    position: "fixed",
-    top: 0,
-    right: 0,
-    width: "520px",
-    height: "100vh",
-    background: "#fff",
-    padding: "25px",
-    boxSizing: "border-box",
-    overflowY: "auto",
-    zIndex: 101,
-  },
-
-  panelHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-  },
-
-  completeButton: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "9px 15px",
-    borderRadius: "5px",
-  },
-
-  close: {
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-  },
-
-  infoGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "20px",
-  },
-
-  label: {
-    display: "block",
-    fontSize: "10px",
-    color: "#888",
-    margin: "20px 0 8px",
-  },
-
-  person: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-  },
-
-  labelRow: {
-    display: "flex",
-    gap: "7px",
-    alignItems: "center",
-  },
-
-  tag: {
-    color: "#fff",
-    padding: "5px 10px",
-    borderRadius: "4px",
-    fontSize: "10px",
-  },
-
-  labelPopup: {
-    position: "absolute",
-    right: "25px",
-    width: "250px",
-    background: "#fff",
-    padding: "15px",
-    boxShadow: "0 10px 30px rgba(0,0,0,.18)",
-    zIndex: 150,
-  },
-
-  input: {
-    width: "100%",
-    padding: "10px",
-    boxSizing: "border-box",
-    border: "1px solid #ddd",
-    borderRadius: "4px",
-  },
-
-  labelOption: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "8px 0",
-  },
-
-  addLabelButton: {
-    width: "100%",
-    border: "none",
-    background: "#16a34a",
-    color: "#fff",
-    padding: "10px",
-  },
-
-  description: {
-    color: "#666",
-    fontSize: "13px",
-    lineHeight: "1.6",
-  },
-
-  progressTrack: {
-    height: "5px",
-    background: "#eee",
-  },
-
-  progressFill: {
-    width: "75%",
-    height: "100%",
-    background: "#16a34a",
-  },
-
-  checkItem: {
-    display: "flex",
-    gap: "10px",
-    padding: "10px 0",
-    borderBottom: "1px solid #eee",
-    fontSize: "12px",
-  },
-
-  attachment: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "10px 0",
-  },
-
-  fileIcon: {
-    width: "45px",
-    height: "45px",
-    border: "1px solid #eee",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  attachImage: {
-    width: "50px",
-    height: "50px",
-    objectFit: "cover",
-  },
-
-  muted: {
-    margin: "4px 0",
-    color: "#999",
-    fontSize: "10px",
-  },
-
-  commentTabs: {
-    display: "flex",
-    gap: "25px",
-    borderBottom: "1px solid #eee",
-    marginTop: "20px",
-  },
-
-  activeCommentTab: {
-    color: "#16a34a",
-    borderBottom: "2px solid #16a34a",
-    paddingBottom: "10px",
-  },
-
-  commentBox: {
-    border: "1px solid #eee",
-    padding: "10px",
-    marginTop: "15px",
-  },
-
-  commentInput: {
-    width: "100%",
-    border: "none",
-    padding: "10px",
-    boxSizing: "border-box",
-  },
-
-  commentButton: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "7px 15px",
-  },
-
-  comment: {
-    display: "flex",
-    gap: "12px",
-    marginTop: "18px",
-    fontSize: "12px",
-  },
-
-  time: {
-    color: "#aaa",
-    marginLeft: "10px",
-  },
-
-  commentImages: {
-    display: "flex",
-    gap: "7px",
-    marginLeft: "42px",
-  },
-
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.3)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 300,
-  },
-
-  labelModal: {
-    width: "400px",
-    background: "#fff",
-    padding: "25px",
-    position: "relative",
-  },
-
-  modalClose: {
-    position: "absolute",
-    right: "15px",
-    top: "15px",
-    border: "none",
-    background: "transparent",
-  },
-
-  existingLabel: {
-    display: "flex",
-    gap: "10px",
-    alignItems: "center",
-    padding: "10px",
-    borderBottom: "1px solid #eee",
-  },
-
-  colorSquare: {
-    width: "10px",
-    height: "10px",
-  },
-
-  labelNameInput: {
-    flex: 1,
-    border: "none",
-    outline: "none",
-  },
-
-  colorRow: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  colorButton: {
-    width: "25px",
-    height: "25px",
-    borderRadius: "50%",
-    cursor: "pointer",
-  },
-
-  doneButton: {
-    display: "block",
-    marginLeft: "auto",
-    marginTop: "25px",
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "10px 25px",
-  },
-};
 
 export default Tasks;

@@ -1,69 +1,124 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 
+/* ================= AUTH PAGES ================= */
+
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Unlock from "./pages/Unlock";
+import NotFound from "./pages/NotFound";
+
+/* ================= DASHBOARD PAGES ================= */
+
 import Home from "./pages/Home";
-import HomeTwo from "./pages/HomeTwo";
-import HomeThree from "./pages/HomeThree";
-import HomeFour from "./pages/HomeFour";
-import HomeFive from "./pages/HomrFive";
-import HomeSix from "./pages/HomeSix";
-import HomeSeven from "./pages/HomeSeven";
+import Dashboard6 from "./pages/Dashboard6";
+import SocialDashboard from "./pages/SocialDashboard";
+
+/* ================= E-COMMERCE PAGES ================= */
 
 import Ecommerce from "./pages/Ecommerce";
 import EcommerceOrders from "./pages/EcommerceOrders";
 import CustomerCare from "./pages/CustomerCare";
+
+/* ================= OTHER PAGES ================= */
 
 import Calendar from "./pages/Calendar";
 import Mail from "./pages/Mail";
 import Tasks from "./pages/Tasks";
 import Projects from "./pages/Projects";
 import FileManager from "./pages/FileManager";
-import Social from "./pages/Social";
+import Notes from "./pages/Notes";
+import Contacts from "./pages/Contacts";
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Navigate to="/home" replace />} />
+      {/* ================= AUTH ================= */}
 
-        {/* DASHBOARD */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
 
-        <Route path="home" element={<Home />} />
-        <Route path="home-two" element={<HomeTwo />} />
-        <Route path="home-three" element={<HomeThree />} />
-        <Route path="home-four" element={<HomeFour />} />
-        <Route path="home-five" element={<HomeFive />} />
-        <Route path="home-six" element={<HomeSix />} />
-        <Route path="home-seven" element={<HomeSeven />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
-        {/* E-COMMERCE */}
+      <Route
+        path="/forgot-password"
+        element={<ForgotPassword />}
+      />
 
-        <Route path="ecommerce" element={<Ecommerce />} />
+      <Route
+        path="/reset-password"
+        element={<ResetPassword />}
+      />
+
+      <Route path="/unlock" element={<Unlock />} />
+
+      {/* ================= MAIN LAYOUT ================= */}
+
+      <Route element={<Layout />}>
+        {/* LOGIN SUCCESS -> HOME */}
+
+        <Route path="/home" element={<Home />} />
+
+        {/* DASHBOARD -> DASHBOARD 6 */}
 
         <Route
-          path="ecommerce-orders"
+          path="/dashboard"
+          element={<Dashboard6 />}
+        />
+
+        {/* PROFILE MENU -> SOCIAL */}
+
+        <Route
+          path="/dashboard-social"
+          element={<SocialDashboard />}
+        />
+
+        {/* ================= E-COMMERCE ================= */}
+
+        <Route path="/ecommerce" element={<Ecommerce />} />
+
+        <Route
+          path="/ecommerce-orders"
           element={<EcommerceOrders />}
         />
 
         <Route
-          path="ecommerce/customer-care"
+          path="/ecommerce/customer-care"
           element={<CustomerCare />}
         />
 
-        {/* OTHER PAGES */}
+        {/* ================= OTHER PAGES ================= */}
 
-        <Route path="calendar" element={<Calendar />} />
-        <Route path="mail" element={<Mail />} />
-        <Route path="tasks" element={<Tasks />} />
-        <Route path="projects" element={<Projects />} />
+        <Route path="/calendar" element={<Calendar />} />
+
+        <Route path="/mail" element={<Mail />} />
+
+        <Route path="/tasks" element={<Tasks />} />
+
+        <Route path="/projects" element={<Projects />} />
 
         <Route
-          path="file-manager"
+          path="/file-manager"
           element={<FileManager />}
         />
 
-        <Route path="social" element={<Social />} />
+        {/* ================= NOTES ================= */}
+
+        <Route path="/notes" element={<Notes />} />
+
+        {/* ================= CONTACTS ================= */}
+
+        <Route
+          path="/contacts"
+          element={<Contacts />}
+        />
       </Route>
+
+      {/* ================= 404 ================= */}
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

@@ -1,25 +1,29 @@
 import { useState } from "react";
+import "./Calendar.css";
 
 const calendarTypes = [
-  { name: "Important", color: "#fb7185" },
-  { name: "Meeting", color: "#22d3ee" },
-  { name: "Event", color: "#4ade80" },
-  { name: "Work", color: "#facc15" },
-  { name: "Other", color: "#94a3b8" },
+  { name: "Important", color: "#ff7474" },
+  { name: "Meeting", color: "#24c7dd" },
+  { name: "Event", color: "#45c96b" },
+  { name: "Work", color: "#ffc832" },
+  { name: "Other", color: "#9098a3" },
 ];
 
 const initialEvents = [
   {
     id: 1,
     title: "Call Back Priscilla",
-    day: 2,
-    start: "10:00",
-    end: "11:30",
-    type: "Meeting",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum risus egestas elementum erat elementum a est.",
+    day: 1,
+    start: "00:30",
+    end: "01:30",
+    type: "Important",
   },
   {
     id: 2,
-    title: "Meeting with Julian",
+    title: "Meeting with Judith",
+    description: "Meeting with Judith",
     day: 9,
     start: "10:00",
     end: "11:30",
@@ -27,23 +31,35 @@ const initialEvents = [
   },
   {
     id: 3,
-    title: "Project Rocket",
+    title: "Meeting...",
+    description: "New meeting",
+    day: 9,
+    start: "10:00",
+    end: "11:30",
+    type: "Meeting",
+  },
+  {
+    id: 4,
+    title: 'Project "Rocket"',
+    description: "Rocket project meeting",
     day: 14,
     start: "10:00",
     end: "11:30",
     type: "Work",
   },
   {
-    id: 4,
+    id: 5,
     title: "Presentation",
+    description: "Project presentation",
     day: 23,
     start: "10:00",
     end: "11:30",
     type: "Event",
   },
   {
-    id: 5,
+    id: 6,
     title: "Presentation",
+    description: "Project presentation",
     day: 24,
     start: "10:00",
     end: "11:30",
@@ -51,113 +67,258 @@ const initialEvents = [
   },
 ];
 
+const monthDays = [
+  { day: 30, muted: true },
+  { day: 31, muted: true },
+  { day: 1 },
+  { day: 2 },
+  { day: 3 },
+  { day: 4 },
+  { day: 5 },
+  { day: 6 },
+  { day: 7 },
+  { day: 8 },
+  { day: 9 },
+  { day: 10 },
+  { day: 11 },
+  { day: 12 },
+  { day: 13 },
+  { day: 14 },
+  { day: 15 },
+  { day: 16 },
+  { day: 17 },
+  { day: 18 },
+  { day: 19 },
+  { day: 20 },
+  { day: 21 },
+  { day: 22 },
+  { day: 23 },
+  { day: 24 },
+  { day: 25 },
+  { day: 26 },
+  { day: 27 },
+  { day: 28 },
+  { day: 29 },
+  { day: 30 },
+  { day: 1, muted: true },
+  { day: 2, muted: true },
+  { day: 3, muted: true },
+];
+
+const weekDays = [
+  { label: "MO", day: 6 },
+  { label: "TU", day: 7 },
+  { label: "WE", day: 8 },
+  { label: "TH", day: 9 },
+  { label: "FR", day: 10 },
+  { label: "SA", day: 11 },
+  { label: "SU", day: 12 },
+];
+
+const timeOptions = [
+  "00:00",
+  "00:30",
+  "01:00",
+  "01:30",
+  "02:00",
+  "02:30",
+  "03:00",
+  "03:30",
+  "04:00",
+  "04:30",
+  "05:00",
+  "05:30",
+  "06:00",
+  "06:30",
+  "07:00",
+  "07:30",
+  "08:00",
+  "08:30",
+  "09:00",
+  "09:30",
+  "10:00",
+  "10:30",
+  "11:00",
+  "11:30",
+  "12:00",
+];
+
+const calendarColors = [
+  "#ff7474",
+  "#43c7b7",
+  "#ffc832",
+  "#22983f",
+  "#25c6da",
+  "#49cc70",
+  "#a5df3d",
+  "#ad4ee5",
+  "#f35bc2",
+  "#9098a3",
+];
+
 function Calendar() {
   const [view, setView] = useState("Month");
   const [events, setEvents] = useState(initialEvents);
+  const [calendars, setCalendars] = useState(calendarTypes);
 
-  const [eventModal, setEventModal] = useState(false);
-  const [calendarPanel, setCalendarPanel] = useState(false);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [showCalendarPanel, setShowCalendarPanel] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [editingEvent, setEditingEvent] = useState(null);
   const [deleteModal, setDeleteModal] = useState(false);
-
   const [calendarMenu, setCalendarMenu] = useState(null);
 
   const [eventForm, setEventForm] = useState({
     title: "",
     description: "",
-    day: 8,
+    day: 12,
     start: "00:00",
     end: "00:00",
     type: "Important",
+    allDay: true,
+    repeat: false,
   });
 
   const [calendarForm, setCalendarForm] = useState({
     name: "",
     description: "",
-    color: "#4ade80",
+    color: "#43c7b7",
   });
+
+  const resetEventForm = () => {
+    setEventForm({
+      title: "",
+      description: "",
+      day: 12,
+      start: "00:00",
+      end: "00:00",
+      type: "Important",
+      allDay: true,
+      repeat: false,
+    });
+  };
+
+  const openNewEvent = () => {
+    resetEventForm();
+    setEditingEvent(null);
+    setShowEventModal(true);
+  };
 
   const createEvent = () => {
     if (!eventForm.title.trim()) return;
 
-    setEvents([
-      ...events,
-      {
-        id: Date.now(),
-        ...eventForm,
-        day: Number(eventForm.day),
-      },
-    ]);
+    if (editingEvent) {
+      setEvents((current) =>
+        current.map((event) =>
+          event.id === editingEvent.id
+            ? {
+                ...event,
+                ...eventForm,
+                day: Number(eventForm.day),
+              }
+            : event
+        )
+      );
+    } else {
+      setEvents((current) => [
+        ...current,
+        {
+          id: Date.now(),
+          ...eventForm,
+          day: Number(eventForm.day),
+        },
+      ]);
+    }
 
-    setEventModal(false);
+    setShowEventModal(false);
+    setEditingEvent(null);
+    setSelectedEvent(null);
+    resetEventForm();
+  };
 
+  const openEditEvent = () => {
     setEventForm({
-      title: "",
-      description: "",
-      day: 8,
-      start: "00:00",
-      end: "00:00",
-      type: "Important",
+      title: selectedEvent.title,
+      description: selectedEvent.description,
+      day: selectedEvent.day,
+      start: selectedEvent.start,
+      end: selectedEvent.end,
+      type: selectedEvent.type,
+      allDay: selectedEvent.allDay ?? false,
+      repeat: selectedEvent.repeat ?? false,
     });
+
+    setEditingEvent(selectedEvent);
+    setSelectedEvent(null);
+    setShowEventModal(true);
   };
 
   const deleteEvent = () => {
-    setEvents(
-      events.filter((event) => event.id !== selectedEvent.id)
+    setEvents((current) =>
+      current.filter((event) => event.id !== selectedEvent.id)
     );
 
-    setSelectedEvent(null);
     setDeleteModal(false);
+    setSelectedEvent(null);
+  };
+
+  const createCalendar = () => {
+    if (!calendarForm.name.trim()) return;
+
+    setCalendars((current) => [
+      ...current,
+      {
+        name: calendarForm.name,
+        color: calendarForm.color,
+      },
+    ]);
+
+    setCalendarForm({
+      name: "",
+      description: "",
+      color: "#43c7b7",
+    });
+
+    setShowCalendarPanel(false);
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
+    <div className="calendar-page">
+      <div className="calendar-page-header">
         <h1>Calendar</h1>
 
-        <button
-          style={styles.addButton}
-          onClick={() => setEventModal(true)}
-        >
+        <button className="calendar-add-event" onClick={openNewEvent}>
           + Add Event
         </button>
       </div>
 
-      <div style={styles.calendarLayout}>
-        <aside style={styles.calendarSidebar}>
-          <div style={styles.sidebarTitle}>
+      <div className="calendar-wrapper">
+        <aside className="calendar-sidebar">
+          <div className="calendar-sidebar-title">
             <span>CALENDARS</span>
 
-            <button
-              style={styles.plusButton}
-              onClick={() => setCalendarPanel(true)}
-            >
-              +
-            </button>
+            <button onClick={() => setShowCalendarPanel(true)}>+</button>
           </div>
 
-          {calendarTypes.map((calendar) => (
-            <div
-              key={calendar.name}
-              style={styles.calendarItem}
-            >
+          {calendars.map((calendar) => (
+            <div className="calendar-sidebar-item" key={calendar.name}>
               <span
-                style={{
-                  ...styles.calendarDot,
-                  background: calendar.color,
-                }}
-              />
+                className="calendar-check"
+                style={{ background: calendar.color }}
+              >
+                ✓
+              </span>
 
-              {calendar.name}
+              <span>{calendar.name}</span>
 
               <button
-                style={styles.menuButton}
+                className="calendar-three-dots"
                 onClick={() =>
                   setCalendarMenu(
-                    calendarMenu === calendar.name
-                      ? null
-                      : calendar.name
+                    calendarMenu === calendar.name ? null : calendar.name
                   )
                 }
               >
@@ -165,31 +326,30 @@ function Calendar() {
               </button>
 
               {calendarMenu === calendar.name && (
-                <div style={styles.calendarPopup}>
-                  <p>◉ Display this only</p>
-                  <p>☑ Hide from list</p>
-                  <p>⚙ Settings</p>
+                <div className="calendar-options-menu">
+                  <button>◉ Display this Only</button>
+                  <button>⌁ Hide from List</button>
+                  <button>⚙ Settings</button>
 
-                  <hr />
+                  <div className="calendar-menu-divider" />
 
-                  <p style={{ color: "#ef4444" }}>
-                    Delete Calendar
-                  </p>
+                  <button className="calendar-delete-option">
+                    ♙ Delete Calendar
+                  </button>
 
-                  <div style={styles.colorRow}>
-                    {[
-                      "#fb7185",
-                      "#22d3ee",
-                      "#4ade80",
-                      "#facc15",
-                      "#8b5cf6",
-                      "#14b8a6",
-                    ].map((color) => (
-                      <span
+                  <div className="calendar-menu-colors">
+                    {calendarColors.map((color) => (
+                      <button
                         key={color}
-                        style={{
-                          ...styles.colorCircle,
-                          background: color,
+                        style={{ background: color }}
+                        onClick={() => {
+                          setCalendars((current) =>
+                            current.map((item) =>
+                              item.name === calendar.name
+                                ? { ...item, color }
+                                : item
+                            )
+                          );
                         }}
                       />
                     ))}
@@ -200,27 +360,27 @@ function Calendar() {
           ))}
         </aside>
 
-        <main style={styles.calendarMain}>
-          <div style={styles.toolbar}>
-            <div>
-              <button style={styles.navButton}>‹</button>
-              <button style={styles.navButton}>›</button>
-              <button style={styles.todayButton}>Today</button>
+        <main className="calendar-main">
+          <div className="calendar-toolbar">
+            <div className="calendar-navigation">
+              <div className="calendar-arrow-group">
+                <button>‹</button>
+                <button>›</button>
+              </div>
+
+              <button className="calendar-today">Today</button>
             </div>
 
-            <h2>September <small>2020</small></h2>
+            <h2>
+              September <span>2020</span>
+            </h2>
 
-            <div style={styles.viewTabs}>
+            <div className="calendar-view-tabs">
               {["Month", "Week", "Day"].map((item) => (
                 <button
                   key={item}
+                  className={view === item ? "active" : ""}
                   onClick={() => setView(item)}
-                  style={{
-                    ...styles.viewButton,
-                    background:
-                      view === item ? "#16a34a" : "transparent",
-                    color: view === item ? "#fff" : "#555",
-                  }}
                 >
                   {item}
                 </button>
@@ -251,27 +411,26 @@ function Calendar() {
         </main>
       </div>
 
-      {calendarPanel && (
+      {showCalendarPanel && (
         <>
           <div
-            style={styles.overlay}
-            onClick={() => setCalendarPanel(false)}
+            className="calendar-overlay"
+            onClick={() => setShowCalendarPanel(false)}
           />
 
-          <div style={styles.sidePanel}>
+          <div className="new-calendar-panel">
             <button
-              style={styles.closeButton}
-              onClick={() => setCalendarPanel(false)}
+              className="calendar-close"
+              onClick={() => setShowCalendarPanel(false)}
             >
-              ✕
+              ×
             </button>
 
             <h2>New Calendar</h2>
 
-            <label style={styles.label}>Name</label>
+            <label>Name</label>
 
             <input
-              style={styles.input}
               placeholder="Personal"
               value={calendarForm.name}
               onChange={(e) =>
@@ -282,10 +441,9 @@ function Calendar() {
               }
             />
 
-            <label style={styles.label}>Description</label>
+            <label>Description</label>
 
             <textarea
-              style={styles.textarea}
               placeholder="Type something"
               value={calendarForm.description}
               onChange={(e) =>
@@ -296,46 +454,31 @@ function Calendar() {
               }
             />
 
-            <label style={styles.label}>Color</label>
+            <label>Color</label>
 
-            <div style={styles.colorGrid}>
-              {[
-                "#fb7185",
-                "#22d3ee",
-                "#facc15",
-                "#4ade80",
-                "#67e8f9",
-                "#86efac",
-                "#fde68a",
-                "#f9a8d4",
-                "#c4b5fd",
-              ].map((color) => (
+            <div className="new-calendar-colors">
+              {calendarColors.map((color) => (
                 <button
                   key={color}
+                  style={{ background: color }}
+                  className={
+                    calendarForm.color === color ? "selected-color" : ""
+                  }
                   onClick={() =>
                     setCalendarForm({
                       ...calendarForm,
                       color,
                     })
                   }
-                  style={{
-                    ...styles.colorBox,
-                    background: color,
-                    border:
-                      calendarForm.color === color
-                        ? "2px solid #111"
-                        : "none",
-                  }}
-                />
+                >
+                  {calendarForm.color === color && "✓"}
+                </button>
               ))}
             </div>
 
             <button
-              style={{
-                ...styles.createButton,
-                width: "100%",
-              }}
-              onClick={() => setCalendarPanel(false)}
+              className="calendar-create-full"
+              onClick={createCalendar}
             >
               Create
             </button>
@@ -343,22 +486,25 @@ function Calendar() {
         </>
       )}
 
-      {eventModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.eventModal}>
+      {showEventModal && (
+        <div className="calendar-modal-overlay">
+          <div className="new-event-modal">
             <button
-              style={styles.closeButton}
-              onClick={() => setEventModal(false)}
+              className="calendar-close"
+              onClick={() => {
+                setShowEventModal(false);
+                setShowDatePicker(false);
+                setShowTimePicker(false);
+              }}
             >
-              ✕
+              ×
             </button>
 
-            <h2>New Event</h2>
+            <h2>{editingEvent ? "Edit Event" : "New Event"}</h2>
 
-            <label style={styles.label}>Title</label>
+            <label>Title</label>
 
             <input
-              style={styles.input}
               placeholder="Sending order"
               value={eventForm.title}
               onChange={(e) =>
@@ -369,10 +515,10 @@ function Calendar() {
               }
             />
 
-            <label style={styles.label}>Description</label>
+            <label>Description</label>
 
             <textarea
-              style={styles.description}
+              placeholder="Sending order #25789 Felecia Burke at 5:30"
               value={eventForm.description}
               onChange={(e) =>
                 setEventForm({
@@ -380,43 +526,73 @@ function Calendar() {
                   description: e.target.value,
                 })
               }
-              placeholder="Sending order information"
             />
 
-            <label style={styles.label}>Day</label>
+            <label>Time and Date</label>
 
-            <input
-              style={styles.input}
-              type="number"
-              min="1"
-              max="30"
-              value={eventForm.day}
-              onChange={(e) =>
-                setEventForm({
-                  ...eventForm,
-                  day: e.target.value,
-                })
-              }
-            />
+            <div className="event-date-row">
+              <div className="event-picker-wrapper">
+                <button
+                  className="event-picker-button"
+                  onClick={() =>
+                    setShowTimePicker(!showTimePicker)
+                  }
+                >
+                  {eventForm.start}
+                </button>
 
-            <label style={styles.label}>Time and Date</label>
+                {showTimePicker && (
+                  <div className="event-time-dropdown">
+                    {timeOptions.map((time) => (
+                      <button
+                        key={time}
+                        className={
+                          eventForm.start === time ? "active-time" : ""
+                        }
+                        onClick={() => {
+                          setEventForm({
+                            ...eventForm,
+                            start: time,
+                          });
 
-            <div style={styles.twoColumns}>
+                          setShowTimePicker(false);
+                        }}
+                      >
+                        {eventForm.start === time && "✓ "}
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="event-picker-wrapper">
+                <button
+                  className="event-picker-button"
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                >
+                  {String(eventForm.day).padStart(2, "0")}.09.2020⌄
+                </button>
+
+                {showDatePicker && (
+                  <DatePicker
+                    selectedDay={eventForm.day}
+                    onSelect={(day) => {
+                      setEventForm({
+                        ...eventForm,
+                        day,
+                      });
+
+                      setShowDatePicker(false);
+                    }}
+                  />
+                )}
+              </div>
+
+              <span className="event-date-divider">—</span>
+
               <input
                 type="time"
-                style={styles.input}
-                value={eventForm.start}
-                onChange={(e) =>
-                  setEventForm({
-                    ...eventForm,
-                    start: e.target.value,
-                  })
-                }
-              />
-
-              <input
-                type="time"
-                style={styles.input}
                 value={eventForm.end}
                 onChange={(e) =>
                   setEventForm({
@@ -425,12 +601,47 @@ function Calendar() {
                   })
                 }
               />
+
+              <button className="event-picker-button">
+                {String(eventForm.day).padStart(2, "0")}.09.2020⌄
+              </button>
             </div>
 
-            <label style={styles.label}>Calendar</label>
+            <div className="event-checkbox-row">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={eventForm.allDay}
+                  onChange={(e) =>
+                    setEventForm({
+                      ...eventForm,
+                      allDay: e.target.checked,
+                    })
+                  }
+                />
+
+                <span>All Day</span>
+              </label>
+
+              <label>
+                <input
+                  type="checkbox"
+                  checked={eventForm.repeat}
+                  onChange={(e) =>
+                    setEventForm({
+                      ...eventForm,
+                      repeat: e.target.checked,
+                    })
+                  }
+                />
+
+                <span>Repeat</span>
+              </label>
+            </div>
+
+            <label>Calendar</label>
 
             <select
-              style={styles.input}
               value={eventForm.type}
               onChange={(e) =>
                 setEventForm({
@@ -439,91 +650,85 @@ function Calendar() {
                 })
               }
             >
-              {calendarTypes.map((calendar) => (
-                <option key={calendar.name}>
+              {calendars.map((calendar) => (
+                <option key={calendar.name} value={calendar.name}>
                   {calendar.name}
                 </option>
               ))}
             </select>
 
-            <button
-              style={styles.createButton}
-              onClick={createEvent}
-            >
-              Create
-            </button>
+            <div className="event-modal-actions">
+              <button className="event-create-button" onClick={createEvent}>
+                {editingEvent ? "Save" : "Create"}
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {selectedEvent && !deleteModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.eventDetails}>
-            <button
-              style={styles.closeButton}
-              onClick={() => setSelectedEvent(null)}
-            >
-              ✕
-            </button>
+        <div
+          className="calendar-modal-overlay calendar-preview-overlay"
+          onClick={() => setSelectedEvent(null)}
+        >
+          <div
+            className="calendar-event-preview"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="event-preview-actions">
+              <button onClick={openEditEvent}>✎</button>
 
-            <div style={styles.eventTitleRow}>
+              <button onClick={() => setDeleteModal(true)}>♙</button>
+
+              <button>•••</button>
+
+              <button onClick={() => setSelectedEvent(null)}>×</button>
+            </div>
+
+            <div className="event-preview-title">
               <span
                 style={{
-                  ...styles.calendarDot,
-                  background: getColor(selectedEvent.type),
+                  background: getColor(selectedEvent.type, calendars),
                 }}
               />
 
               <h2>{selectedEvent.title}</h2>
             </div>
 
-            <p>
-              Wednesday, September {selectedEvent.day} ·{" "}
+            <p className="event-preview-time">
+              ◷ Wednesday, September {selectedEvent.day} ・{" "}
               {selectedEvent.start} - {selectedEvent.end}
             </p>
 
-            <p style={styles.eventDescription}>
+            <p className="event-preview-description">
+              ☷{" "}
               {selectedEvent.description ||
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum risus egestas elementum erat elementum a est."}
             </p>
 
-            <p>▣ {selectedEvent.type}</p>
-
-            <div style={styles.detailActions}>
-              <button style={styles.editButton}>✎ Edit</button>
-
-              <button
-                style={styles.deleteButton}
-                onClick={() => setDeleteModal(true)}
-              >
-                🗑 Delete
-              </button>
-            </div>
+            <p className="event-preview-calendar">
+              ▧ {selectedEvent.type}
+            </p>
           </div>
         </div>
       )}
 
-      {deleteModal && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.deleteModal}>
-            <h3>Deleting Event</h3>
+      {deleteModal && selectedEvent && (
+        <div className="calendar-modal-overlay">
+          <div className="delete-event-modal">
+            <h2>Deleting Event</h2>
 
-            <p>
-              Are you sure you want to delete this event?
-            </p>
+            <p>Are you sure you want to delete this event?</p>
 
-            <div style={styles.deleteActions}>
+            <div>
               <button
-                style={styles.cancelButton}
+                className="delete-cancel"
                 onClick={() => setDeleteModal(false)}
               >
                 Cancel
               </button>
 
-              <button
-                style={styles.yesButton}
-                onClick={deleteEvent}
-              >
+              <button className="delete-confirm" onClick={deleteEvent}>
                 Yes
               </button>
             </div>
@@ -535,61 +740,59 @@ function Calendar() {
 }
 
 function MonthView({ events, onEventClick }) {
-  const days = [
-    30, 31, 1, 2, 3, 4, 5,
-    6, 7, 8, 9, 10, 11, 12,
-    13, 14, 15, 16, 17, 18, 19,
-    20, 21, 22, 23, 24, 25, 26,
-    27, 28, 29, 30, 1, 2, 3,
+  const weekNames = [
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+    "SUNDAY",
   ];
 
   return (
     <>
-      <div style={styles.weekHeader}>
-        {[
-          "MONDAY",
-          "TUESDAY",
-          "WEDNESDAY",
-          "THURSDAY",
-          "FRIDAY",
-          "SATURDAY",
-          "SUNDAY",
-        ].map((day) => (
+      <div className="calendar-week-names">
+        {weekNames.map((day) => (
           <div key={day}>{day}</div>
         ))}
       </div>
 
-      <div style={styles.monthGrid}>
-        {days.map((day, index) => (
-          <div key={index} style={styles.dayCell}>
+      <div className="calendar-month-grid">
+        {monthDays.map((date, index) => (
+          <div
+            key={`${date.day}-${index}`}
+            className={`calendar-day-cell ${
+              date.muted ? "muted-calendar-day" : ""
+            }`}
+          >
             <span
-              style={
-                day === 8 && index === 9
-                  ? styles.currentDay
-                  : styles.dayNumber
+              className={
+                date.day === 8 && index === 9
+                  ? "calendar-current-day"
+                  : "calendar-day-number"
               }
             >
-              {day}
+              {date.day}
             </span>
 
-            {events
-              .filter((event) => event.day === day)
-              .map((event) => (
-                <button
-                  key={event.id}
-                  onClick={() => onEventClick(event)}
-                  style={{
-                    ...styles.monthEvent,
-                    background: getLightColor(event.type),
-                    borderLeft: `3px solid ${getColor(
-                      event.type
-                    )}`,
-                  }}
-                >
-                  {event.title}
-                  <span>{event.start}</span>
-                </button>
-              ))}
+            {!date.muted &&
+              events
+                .filter((event) => event.day === date.day)
+                .map((event) => (
+                  <button
+                    key={event.id}
+                    className="calendar-month-event"
+                    style={{
+                      background: getLightColor(event.type),
+                      borderLeftColor: getDefaultColor(event.type),
+                    }}
+                    onClick={() => onEventClick(event)}
+                  >
+                    <span>{event.title}</span>
+                    <small>{event.start}</small>
+                  </button>
+                ))}
           </div>
         ))}
       </div>
@@ -598,462 +801,229 @@ function MonthView({ events, onEventClick }) {
 }
 
 function WeekView({ events, onEventClick }) {
-  const days = ["MON 6", "TUE 7", "WED 8", "THU 9", "FRI 10", "SAT 11", "SUN 12"];
+  const displayEvents = [
+    { ...events[1], column: 1, top: 40, height: 65 },
+    {
+      id: 101,
+      title: "New Event",
+      type: "Meeting",
+      start: "10:00",
+      end: "11:30",
+      column: 1,
+      top: 110,
+      height: 145,
+    },
+    { ...events[3], column: 2, top: 185, height: 100 },
+    { ...events[0], column: 3, top: 335, height: 140 },
+    { ...events[4], column: 4, top: 110, height: 285 },
+    { ...events[5], column: 4, top: 400, height: 110 },
+  ];
 
   return (
-    <div>
-      <div style={styles.weekHeader}>
-        {days.map((day) => (
-          <div key={day}>{day}</div>
+    <div className="calendar-time-view">
+      <div className="calendar-week-days">
+        <div className="calendar-time-space" />
+
+        {weekDays.map((day) => (
+          <div key={day.day}>
+            <small>{day.label}</small>
+
+            <span className={day.day === 8 ? "week-current-day" : ""}>
+              {day.day}
+            </span>
+          </div>
         ))}
       </div>
 
-      <div style={styles.weekBody}>
-        {days.map((day, index) => (
-          <div key={day} style={styles.weekColumn}>
-            {events.slice(index, index + 2).map((event) => (
-              <button
-                key={event.id}
-                onClick={() => onEventClick(event)}
-                style={{
-                  ...styles.weekEvent,
-                  background: getLightColor(event.type),
-                  borderLeft: `3px solid ${getColor(
-                    event.type
-                  )}`,
-                  marginTop: `${50 + index * 35}px`,
-                }}
-              >
+      <div className="calendar-week-body">
+        <TimeLabels />
+
+        <div className="calendar-week-columns">
+          {weekDays.map((day) => (
+            <div
+              key={day.day}
+              className={day.day === 8 ? "week-today-column" : ""}
+            />
+          ))}
+
+          {displayEvents.map((event) => (
+            <button
+              key={event.id}
+              className="calendar-timed-event"
+              style={{
+                left: `calc(${event.column} * (100% / 7) + 4px)`,
+                width: "calc((100% / 7) - 8px)",
+                top: event.top,
+                height: event.height,
+                background: getLightColor(event.type),
+                borderLeftColor: getDefaultColor(event.type),
+              }}
+              onClick={() => onEventClick(event)}
+            >
+              <small>
                 {event.start} - {event.end}
-                <br />
-                {event.title}
-              </button>
-            ))}
+              </small>
+
+              <span>{event.title}</span>
+            </button>
+          ))}
+
+          <div className="calendar-current-time">
+            <span>06:30</span>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );
 }
 
 function DayView({ events, onEventClick }) {
-  return (
-    <div style={styles.dayView}>
-      <h4 style={{ textAlign: "center" }}>TUESDAY 7</h4>
+  const dayEvents = [
+    {
+      ...events[3],
+      top: 40,
+      height: 110,
+    },
+    {
+      id: 202,
+      title: "New Event",
+      type: "Meeting",
+      start: "10:00",
+      end: "11:30",
+      top: 190,
+      height: 160,
+    },
+    {
+      ...events[0],
+      top: 355,
+      height: 55,
+    },
+    {
+      ...events[4],
+      top: 515,
+      height: 110,
+    },
+  ];
 
-      {events.slice(0, 4).map((event) => (
-        <button
-          key={event.id}
-          onClick={() => onEventClick(event)}
-          style={{
-            ...styles.dayEvent,
-            background: getLightColor(event.type),
-            borderLeft: `3px solid ${getColor(event.type)}`,
-          }}
-        >
-          {event.start} - {event.end}
-          <br />
-          {event.title}
-        </button>
+  return (
+    <div className="calendar-day-view">
+      <div className="calendar-day-view-title">TUESDAY 7</div>
+
+      <div className="calendar-day-time-body">
+        <TimeLabels />
+
+        <div className="calendar-day-events">
+          {dayEvents.map((event) => (
+            <button
+              key={event.id}
+              className="calendar-day-event"
+              style={{
+                top: event.top,
+                height: event.height,
+                background: getLightColor(event.type),
+                borderLeftColor: getDefaultColor(event.type),
+              }}
+              onClick={() => onEventClick(event)}
+            >
+              <small>
+                {event.start} - {event.end}
+              </small>
+
+              <span>{event.title}</span>
+            </button>
+          ))}
+
+          <div className="calendar-current-time">
+            <span>06:30</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TimeLabels() {
+  return (
+    <div className="calendar-time-labels">
+      {Array.from({ length: 12 }, (_, index) => (
+        <span key={index}>
+          {String(index + 1).padStart(2, "0")}:00
+        </span>
       ))}
     </div>
   );
 }
 
-function getColor(type) {
+function DatePicker({ selectedDay, onSelect }) {
+  const pickerDays = [
+    28, 29, 30, 31, 1, 2, 3,
+    4, 5, 6, 7, 8, 9, 10,
+    11, 12, 13, 14, 15, 16, 17,
+    18, 19, 20, 21, 22, 23, 24,
+    25, 26, 27, 28, 29, 30, 1,
+  ];
+
   return (
-    calendarTypes.find((item) => item.name === type)?.color ||
-    "#94a3b8"
+    <div className="calendar-date-picker">
+      <div className="date-picker-header">
+        <button>‹</button>
+
+        <strong>
+          September <span>2020</span>
+        </strong>
+
+        <button>›</button>
+      </div>
+
+      <div className="date-picker-week">
+        {["MO", "TU", "WE", "TH", "FR", "SA", "SU"].map((day) => (
+          <span key={day}>{day}</span>
+        ))}
+      </div>
+
+      <div className="date-picker-days">
+        {pickerDays.map((day, index) => (
+          <button
+            key={`${day}-${index}`}
+            className={
+              day === Number(selectedDay) && index > 6
+                ? "selected-picker-day"
+                : ""
+            }
+            onClick={() => onSelect(day)}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function getDefaultColor(type) {
+  return (
+    calendarTypes.find((calendar) => calendar.name === type)?.color ||
+    "#9098a3"
+  );
+}
+
+function getColor(type, calendars) {
+  return (
+    calendars.find((calendar) => calendar.name === type)?.color ||
+    "#9098a3"
   );
 }
 
 function getLightColor(type) {
   const colors = {
-    Important: "#ffe4e6",
-    Meeting: "#cffafe",
-    Event: "#dcfce7",
-    Work: "#fef3c7",
-    Other: "#e2e8f0",
+    Important: "#ffdede",
+    Meeting: "#c7f2f5",
+    Event: "#d0f3db",
+    Work: "#fff1bd",
+    Other: "#e5e7eb",
   };
 
-  return colors[type];
+  return colors[type] || "#d0f3db";
 }
-
-const styles = {
-  page: {
-    padding: "25px",
-    background: "#f5f7f6",
-    minHeight: "100vh",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  addButton: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  calendarLayout: {
-    display: "flex",
-    marginTop: "20px",
-    background: "#fff",
-  },
-
-  calendarSidebar: {
-    width: "190px",
-    padding: "20px",
-    borderRight: "1px solid #eee",
-  },
-
-  sidebarTitle: {
-    display: "flex",
-    justifyContent: "space-between",
-    color: "#999",
-    fontSize: "12px",
-    marginBottom: "20px",
-  },
-
-  plusButton: {
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-  },
-
-  calendarItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    padding: "10px 0",
-    position: "relative",
-  },
-
-  calendarDot: {
-    width: "10px",
-    height: "10px",
-    borderRadius: "3px",
-  },
-
-  menuButton: {
-    marginLeft: "auto",
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-  },
-
-  calendarPopup: {
-    position: "absolute",
-    left: "160px",
-    top: "30px",
-    width: "180px",
-    background: "#fff",
-    padding: "15px",
-    boxShadow: "0 8px 25px rgba(0,0,0,.15)",
-    zIndex: 50,
-  },
-
-  colorRow: {
-    display: "flex",
-    gap: "7px",
-  },
-
-  colorCircle: {
-    width: "15px",
-    height: "15px",
-    borderRadius: "50%",
-  },
-
-  calendarMain: {
-    flex: 1,
-    minWidth: 0,
-  },
-
-  toolbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "20px",
-  },
-
-  navButton: {
-    border: "1px solid #eee",
-    background: "#fff",
-    padding: "7px 12px",
-  },
-
-  todayButton: {
-    border: "none",
-    background: "#f5f5f5",
-    padding: "8px 15px",
-    marginLeft: "10px",
-  },
-
-  viewTabs: {
-    display: "flex",
-  },
-
-  viewButton: {
-    border: "none",
-    padding: "8px 15px",
-    cursor: "pointer",
-    borderRadius: "5px",
-  },
-
-  weekHeader: {
-    display: "grid",
-    gridTemplateColumns: "repeat(7, 1fr)",
-    textAlign: "center",
-    fontSize: "11px",
-    color: "#888",
-    padding: "10px 0",
-  },
-
-  monthGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(7, 1fr)",
-  },
-
-  dayCell: {
-    minHeight: "115px",
-    border: "1px solid #eee",
-    padding: "8px",
-    boxSizing: "border-box",
-  },
-
-  dayNumber: {
-    display: "block",
-    textAlign: "center",
-  },
-
-  currentDay: {
-    display: "flex",
-    width: "25px",
-    height: "25px",
-    margin: "auto",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#16a34a",
-    color: "#fff",
-    borderRadius: "50%",
-  },
-
-  monthEvent: {
-    width: "100%",
-    marginTop: "5px",
-    padding: "6px",
-    border: "none",
-    textAlign: "left",
-    fontSize: "10px",
-    cursor: "pointer",
-    display: "flex",
-    justifyContent: "space-between",
-  },
-
-  weekBody: {
-    display: "grid",
-    gridTemplateColumns: "repeat(7, 1fr)",
-    minHeight: "600px",
-  },
-
-  weekColumn: {
-    border: "1px solid #eee",
-  },
-
-  weekEvent: {
-    width: "95%",
-    padding: "12px",
-    border: "none",
-    textAlign: "left",
-    cursor: "pointer",
-  },
-
-  dayView: {
-    minHeight: "600px",
-    padding: "20px",
-  },
-
-  dayEvent: {
-    display: "block",
-    width: "100%",
-    padding: "20px",
-    margin: "10px 0",
-    border: "none",
-    textAlign: "left",
-    cursor: "pointer",
-  },
-
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.2)",
-    zIndex: 100,
-  },
-
-  sidePanel: {
-    position: "fixed",
-    top: 0,
-    left: "230px",
-    width: "360px",
-    height: "100vh",
-    background: "#fff",
-    padding: "30px",
-    boxSizing: "border-box",
-    zIndex: 101,
-  },
-
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.25)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 200,
-  },
-
-  eventModal: {
-    width: "430px",
-    background: "#fff",
-    padding: "25px",
-    position: "relative",
-  },
-
-  eventDetails: {
-    width: "450px",
-    background: "#fff",
-    padding: "25px",
-    position: "relative",
-  },
-
-  deleteModal: {
-    width: "400px",
-    background: "#fff",
-    padding: "25px",
-  },
-
-  closeButton: {
-    position: "absolute",
-    right: "15px",
-    top: "15px",
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-  },
-
-  label: {
-    display: "block",
-    fontSize: "12px",
-    color: "#888",
-    margin: "15px 0 7px",
-  },
-
-  input: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-    boxSizing: "border-box",
-  },
-
-  textarea: {
-    width: "100%",
-    height: "120px",
-    padding: "10px",
-    boxSizing: "border-box",
-    border: "1px solid #ddd",
-  },
-
-  description: {
-    width: "100%",
-    height: "100px",
-    padding: "10px",
-    boxSizing: "border-box",
-    border: "1px solid #ddd",
-  },
-
-  twoColumns: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "10px",
-  },
-
-  colorGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(5, 1fr)",
-    gap: "8px",
-    marginBottom: "25px",
-  },
-
-  colorBox: {
-    height: "25px",
-    cursor: "pointer",
-  },
-
-  createButton: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "10px 25px",
-    marginTop: "20px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  eventTitleRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-
-  eventDescription: {
-    color: "#777",
-    lineHeight: 1.6,
-  },
-
-  detailActions: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "10px",
-  },
-
-  editButton: {
-    border: "1px solid #ddd",
-    background: "#fff",
-    padding: "8px 15px",
-  },
-
-  deleteButton: {
-    border: "none",
-    background: "#fee2e2",
-    color: "#ef4444",
-    padding: "8px 15px",
-  },
-
-  deleteActions: {
-    display: "flex",
-    justifyContent: "flex-end",
-    gap: "10px",
-  },
-
-  cancelButton: {
-    border: "1px solid #ddd",
-    background: "#fff",
-    padding: "8px 20px",
-  },
-
-  yesButton: {
-    border: "none",
-    background: "#fb7185",
-    color: "#fff",
-    padding: "8px 25px",
-  },
-};
 
 export default Calendar;

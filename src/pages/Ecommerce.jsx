@@ -1,73 +1,118 @@
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  FaSearch,
+  FaSlidersH,
+  FaChevronDown,
+  FaDownload,
+  FaPlus,
+  FaList,
+  FaThLarge,
+  FaEllipsisV,
+  FaTimes,
+  FaUpload,
+  FaTrash,
+  FaImage,
+  FaCheck,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa";
+
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+import "../styles/Ecommerce.css";
 
 const initialProducts = [
   {
-    id: "#790341",
+    id: 1,
     name: "MacBook Pro 15 Retina Touch Bar MV902",
+    number: "#790841",
     category: "Notebook",
     date: "12.09.20",
-    price: "$2,500",
+    price: 2500,
     status: "Available",
+    image: null,
   },
   {
-    id: "#790342",
+    id: 2,
     name: "Apple Watch Series 5 Edition GPS + Cellular",
+    number: "#790842",
     category: "Watch",
     date: "12.09.20",
-    price: "$2,500",
+    price: 2500,
     status: "Available",
+    image: null,
   },
   {
-    id: "#790343",
+    id: 3,
     name: "Apple iPhone 11 Pro Max 256GB Space Gray",
+    number: "#790843",
     category: "Phone",
     date: "12.09.20",
-    price: "$2,500",
+    price: 2500,
     status: "Available",
+    image: null,
   },
   {
-    id: "#790344",
+    id: 4,
     name: "Apple Watch Series 5 Edition GPS + Cellular",
+    number: "#790844",
     category: "Watch",
     date: "12.09.20",
-    price: "$2,500",
+    price: 2500,
     status: "Available",
+    image: null,
   },
   {
-    id: "#790345",
-    name: "MacBook Pro 16 Retina Touch Bar MVVJ2",
-    category: "Notebook",
-    date: "12.09.20",
-    price: "$2,500",
-    status: "Disabled",
-  },
-  {
-    id: "#790346",
-    name: "Apple iPhone 11 Pro Max 64GB Midnight Green",
-    category: "Phone",
-    date: "12.09.20",
-    price: "$2,500",
-    status: "Disabled",
-  },
-  {
-    id: "#790347",
+    id: 5,
     name: "MacBook Pro 15 Retina Touch Bar MV902",
+    number: "#790845",
     category: "Notebook",
     date: "12.09.20",
-    price: "$2,500",
-    status: "Available",
+    price: 2500,
+    status: "Disabled",
+    image: null,
   },
   {
-    id: "#790348",
+    id: 6,
+    name: "Apple iPhone 11 Pro Max 64GB Midnight Green",
+    number: "#790846",
+    category: "Phone",
+    date: "12.09.20",
+    price: 2500,
+    status: "Disabled",
+    image: null,
+  },
+  {
+    id: 7,
+    name: "MacBook Pro 15 Retina Touch Bar MV902",
+    number: "#790847",
+    category: "Notebook",
+    date: "12.09.20",
+    price: 2500,
+    status: "Available",
+    image: null,
+  },
+  {
+    id: 8,
     name: "Apple Watch Series 5 Edition GPS + Cellular",
+    number: "#790848",
     category: "Watch",
     date: "12.09.20",
-    price: "$2,500",
+    price: 2500,
     status: "Available",
+    image: null,
   },
 ];
 
-const modalTabs = [
+const tabs = [
   "Information",
   "Images",
   "Pricing",
@@ -75,1310 +120,1345 @@ const modalTabs = [
   "Shipping",
 ];
 
+const emptyForm = {
+  name: "Apple iPhone 11 Pro Max 64GB Midnight Green",
+  description: "",
+  category: "Phone",
+  tags: "Apple, iPhone, 64GB",
+  taxExcludedPrice: "2500",
+  taxIncludedPrice: "0.00",
+  taxRule: "US-AL Rate (4%)",
+  unitPrice: "0.00",
+  per: "0",
+  sku: "0",
+  quantity: "0",
+  width: "0",
+  height: "0",
+  depth: "0",
+  weight: "0",
+  shippingFee: "0.00",
+};
+
 function Ecommerce() {
-  const [products, setProducts] = useState(initialProducts);
+  const fileInputRef = useRef(null);
+  const pageRef = useRef(null);
+
+  const [products, setProducts] =
+    useState(initialProducts);
+
+  const [activeStatus, setActiveStatus] =
+    useState("All");
+
   const [view, setView] = useState("list");
-
   const [search, setSearch] = useState("");
-  const [activeStatus, setActiveStatus] = useState("All");
+  const [selected, setSelected] = useState([]);
 
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [exportOpen, setExportOpen] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
+  const [exportOpen, setExportOpen] =
+    useState(false);
 
-  const [quickViewOpen, setQuickViewOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [actionsOpen, setActionsOpen] =
+    useState(false);
 
-  const [activeTab, setActiveTab] = useState("Information");
+  const [filterOpen, setFilterOpen] =
+    useState(false);
 
-  const [filterCategory, setFilterCategory] = useState("All");
-  const [filterStatus, setFilterStatus] = useState("All");
+  const [addProductOpen, setAddProductOpen] =
+    useState(false);
 
-  const [quantity, setQuantity] = useState(1);
+  const [productTab, setProductTab] =
+    useState("Information");
 
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    description: "",
-    category: "Phone",
-    price: "",
-    discount: "",
-    tags: "",
+  const [currentPage, setCurrentPage] =
+    useState(1);
+
+  const [itemsPerPage, setItemsPerPage] =
+    useState(10);
+
+  const [dragActive, setDragActive] =
+    useState(false);
+
+  const [filter, setFilter] = useState({
+    category: "All",
+    status: "All",
+    fromDate: "",
+    toDate: "",
+    minPrice: 500,
+    maxPrice: 5500,
   });
+
+  const [form, setForm] = useState(emptyForm);
+
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    const closeMenus = (event) => {
+      if (
+        pageRef.current &&
+        !pageRef.current.contains(event.target)
+      ) {
+        setExportOpen(false);
+        setActionsOpen(false);
+        setFilterOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", closeMenus);
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        closeMenus
+      );
+  }, []);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
-      const searchMatch = product.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      const query = search.trim().toLowerCase();
 
-      const tabMatch =
+      const matchesSearch =
+        product.name.toLowerCase().includes(query) ||
+        product.number.toLowerCase().includes(query) ||
+        product.category.toLowerCase().includes(query);
+
+      const matchesTab =
         activeStatus === "All" ||
         product.status === activeStatus;
 
-      const categoryMatch =
-        filterCategory === "All" ||
-        product.category === filterCategory;
+      const matchesCategory =
+        filter.category === "All" ||
+        product.category === filter.category;
 
-      const statusMatch =
-        filterStatus === "All" ||
-        product.status === filterStatus;
+      const matchesStatus =
+        filter.status === "All" ||
+        product.status === filter.status;
+
+      const matchesPrice =
+        product.price >= Number(filter.minPrice) &&
+        product.price <= Number(filter.maxPrice);
 
       return (
-        searchMatch &&
-        tabMatch &&
-        categoryMatch &&
-        statusMatch
+        matchesSearch &&
+        matchesTab &&
+        matchesCategory &&
+        matchesStatus &&
+        matchesPrice
       );
     });
   }, [
     products,
     search,
     activeStatus,
-    filterCategory,
-    filterStatus,
+    filter,
   ]);
 
-  const addProduct = () => {
-    if (!newProduct.name.trim()) return;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(
+      filteredProducts.length / itemsPerPage
+    )
+  );
+
+  const safePage = Math.min(
+    currentPage,
+    totalPages
+  );
+
+  const startIndex =
+    (safePage - 1) * itemsPerPage;
+
+  const visibleProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const suggestions = search.trim()
+    ? products
+        .filter((product) =>
+          product.name
+            .toLowerCase()
+            .includes(search.toLowerCase())
+        )
+        .slice(0, 5)
+    : [];
+
+  const handleFormChange = (event) => {
+    const { name, value } = event.target;
+
+    setForm((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const toggleProduct = (id) => {
+    setSelected((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id]
+    );
+  };
+
+  const toggleAll = () => {
+    const ids = visibleProducts.map(
+      (product) => product.id
+    );
+
+    const allSelected =
+      ids.length > 0 &&
+      ids.every((id) => selected.includes(id));
+
+    if (allSelected) {
+      setSelected((previous) =>
+        previous.filter((id) => !ids.includes(id))
+      );
+    } else {
+      setSelected((previous) => [
+        ...new Set([...previous, ...ids]),
+      ]);
+    }
+  };
+
+  const updateSelectedStatus = (status) => {
+    if (!selected.length) return;
+
+    setProducts((previous) =>
+      previous.map((product) =>
+        selected.includes(product.id)
+          ? { ...product, status }
+          : product
+      )
+    );
+
+    setSelected([]);
+    setActionsOpen(false);
+  };
+
+  const deleteSelected = () => {
+    if (!selected.length) return;
+
+    setProducts((previous) =>
+      previous.filter(
+        (product) => !selected.includes(product.id)
+      )
+    );
+
+    setSelected([]);
+    setActionsOpen(false);
+    setCurrentPage(1);
+  };
+
+  const createImageObjects = (files) => {
+    const validFiles = Array.from(files).filter(
+      (file) => file.type.startsWith("image/")
+    );
+
+    const newImages = validFiles.map(
+      (file, index) => ({
+        id: `${Date.now()}-${index}`,
+        name: file.name,
+        url: URL.createObjectURL(file),
+        cover:
+          images.length === 0 && index === 0,
+      })
+    );
+
+    setImages((previous) => [
+      ...previous,
+      ...newImages,
+    ]);
+  };
+
+  const handleFiles = (event) => {
+    createImageObjects(event.target.files);
+
+    event.target.value = "";
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setDragActive(false);
+
+    createImageObjects(event.dataTransfer.files);
+  };
+
+  const deleteImage = (id) => {
+    setImages((previous) => {
+      const removed = previous.find(
+        (image) => image.id === id
+      );
+
+      if (removed?.url) {
+        URL.revokeObjectURL(removed.url);
+      }
+
+      let updated = previous.filter(
+        (image) => image.id !== id
+      );
+
+      if (
+        updated.length &&
+        !updated.some((image) => image.cover)
+      ) {
+        updated = updated.map((image, index) => ({
+          ...image,
+          cover: index === 0,
+        }));
+      }
+
+      return updated;
+    });
+  };
+
+  const setCoverImage = (id) => {
+    setImages((previous) =>
+      previous.map((image) => ({
+        ...image,
+        cover: image.id === id,
+      }))
+    );
+  };
+
+  const closeProductModal = () => {
+    setAddProductOpen(false);
+    setProductTab("Information");
+  };
+
+  const handleSaveProduct = () => {
+    if (!form.name.trim()) {
+      setProductTab("Information");
+      return;
+    }
+
+    const cover =
+      images.find((image) => image.cover) ||
+      images[0];
 
     const product = {
-      id: `#${790349 + products.length}`,
-      name: newProduct.name,
-      category: newProduct.category,
-      date: "12.09.20",
-      price: `$${newProduct.price || "0"}`,
+      id: Date.now(),
+      name: form.name.trim(),
+      number: `#${Math.floor(
+        100000 + Math.random() * 900000
+      )}`,
+      category: form.category,
+      date: new Date().toLocaleDateString(
+        "en-GB"
+      ),
+      price:
+        Number(form.taxExcludedPrice) || 0,
       status: "Available",
+      image: cover?.url || null,
     };
 
-    setProducts([...products, product]);
+    setProducts((previous) => [
+      product,
+      ...previous,
+    ]);
 
-    setNewProduct({
-      name: "",
-      description: "",
-      category: "Phone",
-      price: "",
-      discount: "",
-      tags: "",
+    setForm(emptyForm);
+    setImages([]);
+    setSearch("");
+    setActiveStatus("All");
+    setCurrentPage(1);
+
+    closeProductModal();
+  };
+
+  const exportRows = filteredProducts.map(
+    (product) => ({
+      "Product Name": product.name,
+      "Product No": product.number,
+      Category: product.category,
+      Date: product.date,
+      Price: product.price,
+      Status: product.status,
+    })
+  );
+
+  const exportCSV = () => {
+    const sheet =
+      XLSX.utils.json_to_sheet(exportRows);
+
+    const csv = XLSX.utils.sheet_to_csv(sheet);
+
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8",
     });
 
-    setAddOpen(false);
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "products.csv";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
   };
 
-  const openEditor = () => {
-    setActiveTab("Information");
-    setEditOpen(true);
+  const exportExcel = () => {
+    const sheet =
+      XLSX.utils.json_to_sheet(exportRows);
+
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      sheet,
+      "Products"
+    );
+
+    XLSX.writeFile(workbook, "products.xlsx");
   };
 
-  const openQuickView = (product) => {
-    setSelectedProduct(product);
-    setQuantity(1);
-    setQuickViewOpen(true);
+  const exportPDF = () => {
+    const document = new jsPDF();
+
+    document.text("Products", 14, 15);
+
+    autoTable(document, {
+      startY: 22,
+      head: [
+        [
+          "Product",
+          "No.",
+          "Category",
+          "Date",
+          "Price",
+          "Status",
+        ],
+      ],
+      body: filteredProducts.map((product) => [
+        product.name,
+        product.number,
+        product.category,
+        product.date,
+        `$${product.price}`,
+        product.status,
+      ]),
+    });
+
+    document.save("products.pdf");
+  };
+
+  const handleExport = (type) => {
+    setExportOpen(false);
+
+    if (type === "Print") {
+      window.print();
+    }
+
+    if (type === "Excel") {
+      exportExcel();
+    }
+
+    if (type === "PDF") {
+      exportPDF();
+    }
+
+    if (type === "CSV") {
+      exportCSV();
+    }
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Products</h1>
+    <div className="products-page" ref={pageRef}>
+      <div className="products-title-row">
+        <h1>Products</h1>
 
-          <div style={styles.statusTabs}>
-            {["All", "Available", "Disabled"].map((status) => (
-              <button
-                key={status}
-                onClick={() => setActiveStatus(status)}
-                style={{
-                  ...styles.statusTab,
-                  color:
-                    activeStatus === status
-                      ? "#16a34a"
-                      : "#888",
-                  borderBottom:
-                    activeStatus === status
-                      ? "2px solid #16a34a"
-                      : "2px solid transparent",
-                }}
-              >
-                {status}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={styles.headerActions}>
-          <div style={{ position: "relative" }}>
+        <div className="products-title-actions">
+          <div className="export-wrapper">
             <button
-              style={styles.exportButton}
-              onClick={() => setExportOpen(!exportOpen)}
+              type="button"
+              className="export-button"
+              onClick={() => {
+                setExportOpen(!exportOpen);
+                setActionsOpen(false);
+              }}
             >
-              ⇩ Export ▾
+              <FaDownload />
+              Export
+              <FaChevronDown />
             </button>
 
             {exportOpen && (
-              <div style={styles.exportMenu}>
-                {["Print", "Excel", "PDF", "CSV"].map((item) => (
-                  <div
-                    key={item}
-                    style={styles.exportItem}
-                    onClick={() => setExportOpen(false)}
+              <div className="export-menu">
+                {[
+                  "Print",
+                  "Excel",
+                  "PDF",
+                  "CSV",
+                ].map((type) => (
+                  <button
+                    type="button"
+                    key={type}
+                    onClick={() =>
+                      handleExport(type)
+                    }
                   >
-                    {item}
-                  </div>
+                    {type}
+                  </button>
                 ))}
               </div>
             )}
           </div>
 
           <button
-            style={styles.addButton}
-            onClick={() => setAddOpen(true)}
+            type="button"
+            className="add-product-button"
+            onClick={() => {
+              setAddProductOpen(true);
+              setProductTab("Information");
+            }}
           >
-            +
+            <FaPlus />
           </button>
         </div>
       </div>
 
-      <div style={styles.viewButtons}>
-        <button
-          style={{
-            ...styles.viewButton,
-            color: view === "list" ? "#16a34a" : "#999",
-          }}
-          onClick={() => setView("list")}
-        >
-          ☰
-        </button>
+      <div className="products-tabs-row">
+        <div className="products-status-tabs">
+          {[
+            "All",
+            "Available",
+            "Disabled",
+          ].map((status) => (
+            <button
+              type="button"
+              key={status}
+              className={
+                activeStatus === status
+                  ? "active"
+                  : ""
+              }
+              onClick={() => {
+                setActiveStatus(status);
+                setCurrentPage(1);
+              }}
+            >
+              {status}
 
-        <button
-          style={{
-            ...styles.viewButton,
-            color: view === "grid" ? "#16a34a" : "#999",
-          }}
-          onClick={() => setView("grid")}
-        >
-          ▦
-        </button>
+              <span>
+                {status === "All"
+                  ? products.length
+                  : products.filter(
+                      (product) =>
+                        product.status === status
+                    ).length}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        <div className="view-buttons">
+          <button
+            type="button"
+            className={
+              view === "list" ? "active" : ""
+            }
+            onClick={() => setView("list")}
+          >
+            <FaList />
+          </button>
+
+          <button
+            type="button"
+            className={
+              view === "grid" ? "active" : ""
+            }
+            onClick={() => setView("grid")}
+          >
+            <FaThLarge />
+          </button>
+        </div>
       </div>
 
-      <div style={styles.contentCard}>
-        <div style={styles.toolbar}>
-          <div style={styles.searchWrap}>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search products..."
-              style={styles.search}
-            />
+      <section className="products-content-card">
+        <div className="products-toolbar">
+          <div className="product-search-wrapper">
+            <div className="product-search">
+              <FaSearch />
 
-            {search && (
-              <div style={styles.suggestions}>
-                {filteredProducts.slice(0, 4).map((product) => (
-                  <div
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  setCurrentPage(1);
+                }}
+              />
+
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                >
+                  <FaTimes />
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="filter-trigger"
+                onClick={() => {
+                  setFilterOpen(!filterOpen);
+                  setActionsOpen(false);
+                }}
+              >
+                <FaSlidersH />
+              </button>
+            </div>
+
+            {suggestions.length > 0 && (
+              <div className="search-suggestions">
+                {suggestions.map((product) => (
+                  <button
+                    type="button"
                     key={product.id}
-                    style={styles.suggestion}
-                    onClick={() => {
-                      setSearch(product.name);
-                      openQuickView(product);
-                    }}
+                    onClick={() =>
+                      setSearch(product.name)
+                    }
                   >
                     {product.name}
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </div>
 
-          <div style={{ position: "relative" }}>
+          <div className="export-wrapper">
             <button
-              style={styles.actionButton}
-              onClick={() => setFilterOpen(!filterOpen)}
+              type="button"
+              className="actions-button"
+              onClick={() => {
+                setActionsOpen(!actionsOpen);
+                setFilterOpen(false);
+              }}
             >
-              Actions ▾
+              Actions
+              <FaChevronDown />
             </button>
 
-            {filterOpen && (
-              <div style={styles.filterPopup}>
-                <h2>Filter</h2>
-
-                <label style={styles.label}>Category</label>
-
-                <select
-                  style={styles.input}
-                  value={filterCategory}
-                  onChange={(event) =>
-                    setFilterCategory(event.target.value)
+            {actionsOpen && (
+              <div className="export-menu">
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateSelectedStatus(
+                      "Available"
+                    )
                   }
                 >
-                  <option>All</option>
-                  <option>Phone</option>
-                  <option>Notebook</option>
-                  <option>Watch</option>
-                </select>
-
-                <label style={styles.label}>Status</label>
-
-                <select
-                  style={styles.input}
-                  value={filterStatus}
-                  onChange={(event) =>
-                    setFilterStatus(event.target.value)
-                  }
-                >
-                  <option>All</option>
-                  <option>Available</option>
-                  <option>Disabled</option>
-                </select>
-
-                <label style={styles.label}>Date</label>
-
-                <div style={styles.twoColumns}>
-                  <input type="date" style={styles.input} />
-                  <input type="date" style={styles.input} />
-                </div>
-
-                <label style={styles.label}>Price</label>
-
-                <input
-                  type="range"
-                  min="500"
-                  max="5500"
-                  style={{ width: "100%" }}
-                />
-
-                <div style={styles.priceRow}>
-                  <span>$500</span>
-                  <span>$5,500</span>
-                </div>
+                  Enable Selected
+                </button>
 
                 <button
-                  style={styles.saveButton}
-                  onClick={() => setFilterOpen(false)}
+                  type="button"
+                  onClick={() =>
+                    updateSelectedStatus("Disabled")
+                  }
                 >
-                  Save
+                  Disable Selected
+                </button>
+
+                <button
+                  type="button"
+                  onClick={deleteSelected}
+                >
+                  Delete Selected
                 </button>
               </div>
             )}
           </div>
+
+          {filterOpen && (
+            <div className="products-filter-panel">
+              <h2>Filter</h2>
+
+              <label>Category</label>
+
+              <select
+                value={filter.category}
+                onChange={(event) =>
+                  setFilter((previous) => ({
+                    ...previous,
+                    category: event.target.value,
+                  }))
+                }
+              >
+                <option>All</option>
+                <option>Phone</option>
+                <option>Watch</option>
+                <option>Notebook</option>
+              </select>
+
+              <label>Status</label>
+
+              <select
+                value={filter.status}
+                onChange={(event) =>
+                  setFilter((previous) => ({
+                    ...previous,
+                    status: event.target.value,
+                  }))
+                }
+              >
+                <option>All</option>
+                <option>Available</option>
+                <option>Disabled</option>
+              </select>
+
+              <label>Date</label>
+
+              <div className="filter-date-row">
+                <input
+                  type="date"
+                  value={filter.fromDate}
+                  onChange={(event) =>
+                    setFilter((previous) => ({
+                      ...previous,
+                      fromDate:
+                        event.target.value,
+                    }))
+                  }
+                />
+
+                <input
+                  type="date"
+                  value={filter.toDate}
+                  onChange={(event) =>
+                    setFilter((previous) => ({
+                      ...previous,
+                      toDate: event.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <label>Price</label>
+
+              <input
+                type="range"
+                min="500"
+                max="5500"
+                value={filter.maxPrice}
+                onChange={(event) =>
+                  setFilter((previous) => ({
+                    ...previous,
+                    maxPrice: event.target.value,
+                  }))
+                }
+              />
+
+              <div className="filter-price-values">
+                <span>$500</span>
+                <span>${filter.maxPrice}</span>
+              </div>
+
+              <button
+                type="button"
+                className="filter-save-button"
+                onClick={() => {
+                  setCurrentPage(1);
+                  setFilterOpen(false);
+                }}
+              >
+                Save
+              </button>
+            </div>
+          )}
         </div>
 
         {view === "list" ? (
-          <ProductTable
-            products={filteredProducts}
-            onEdit={openEditor}
-            onProductClick={openQuickView}
-          />
+          <div className="products-table-wrapper">
+            <table className="products-table">
+              <thead>
+                <tr>
+                  <th>
+                    <input
+                      type="checkbox"
+                      checked={
+                        visibleProducts.length > 0 &&
+                        visibleProducts.every(
+                          (product) =>
+                            selected.includes(
+                              product.id
+                            )
+                        )
+                      }
+                      onChange={toggleAll}
+                    />
+                  </th>
+
+                  <th>PRODUCT NAME</th>
+                  <th>PRODUCT NO.</th>
+                  <th>CATEGORY</th>
+                  <th>DATE</th>
+                  <th>PRICE</th>
+                  <th>STATUS</th>
+                  <th />
+                </tr>
+              </thead>
+
+              <tbody>
+                {visibleProducts.map((product) => (
+                  <tr key={product.id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selected.includes(
+                          product.id
+                        )}
+                        onChange={() =>
+                          toggleProduct(product.id)
+                        }
+                      />
+                    </td>
+
+                    <td>{product.name}</td>
+                    <td>{product.number}</td>
+                    <td>{product.category}</td>
+                    <td>{product.date}</td>
+
+                    <td>
+                      $
+                      {product.price.toLocaleString()}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`product-status ${product.status.toLowerCase()}`}
+                      >
+                        {product.status}
+                      </span>
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className="product-more"
+                      >
+                        <FaEllipsisV />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {!visibleProducts.length && (
+              <div
+                style={{
+                  padding: "45px",
+                  textAlign: "center",
+                  color: "#9ca1aa",
+                }}
+              >
+                No products found
+              </div>
+            )}
+          </div>
         ) : (
-          <ProductGrid
-            products={filteredProducts}
-            onProductClick={openQuickView}
-          />
+          <div className="products-grid">
+            {visibleProducts.map((product) => (
+              <article
+                className={`product-grid-card ${
+                  selected.includes(product.id)
+                    ? "selected"
+                    : ""
+                }`}
+                key={product.id}
+                onClick={() =>
+                  toggleProduct(product.id)
+                }
+              >
+                <div className="grid-product-top">
+                  <span
+                    className={`product-status ${product.status.toLowerCase()}`}
+                  >
+                    {product.status}
+                  </span>
+
+                  <span className="grid-select-circle">
+                    {selected.includes(product.id) && (
+                      <FaCheck />
+                    )}
+                  </span>
+                </div>
+
+                <div className="grid-product-image">
+                  {product.image ? (
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                      }}
+                    />
+                  ) : (
+                    <FaImage />
+                  )}
+                </div>
+
+                <div className="grid-product-info">
+                  <h3>{product.name}</h3>
+
+                  <div>
+                    <span>{product.date}</span>
+                    <span>{product.category}</span>
+
+                    <span>
+                      $
+                      {product.price.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
         )}
 
-        <div style={styles.pagination}>
-          <span>
-            Showing 1 - {filteredProducts.length} of 100
-          </span>
-
-          <div>
-            <button style={styles.activePage}>1</button>
-            <button style={styles.pageButton}>2</button>
-            <button style={styles.pageButton}>3</button>
-            <button style={styles.pageButton}>›</button>
-          </div>
-        </div>
-      </div>
-
-      {addOpen && (
-        <>
-          <div
-            style={styles.overlay}
-            onClick={() => setAddOpen(false)}
-          />
-
-          <div style={styles.addPanel}>
-            <h2>Add Product</h2>
-
-            <label style={styles.label}>Product Name</label>
-
-            <input
-              style={styles.input}
-              value={newProduct.name}
-              onChange={(event) =>
-                setNewProduct({
-                  ...newProduct,
-                  name: event.target.value,
-                })
-              }
-              placeholder="Apple iPhone 11 Pro Max"
-            />
-
-            <label style={styles.label}>Description</label>
-
-            <div style={styles.editor}>
-              <div style={styles.editorTools}>
-                A ▾ &nbsp; B &nbsp; / &nbsp; U &nbsp; ≡
-              </div>
-
-              <textarea
-                style={styles.textarea}
-                placeholder="Type something"
-                value={newProduct.description}
-                onChange={(event) =>
-                  setNewProduct({
-                    ...newProduct,
-                    description: event.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <label style={styles.label}>Category</label>
-
+        <div className="products-pagination">
+          <div className="pagination-info">
             <select
-              style={styles.input}
-              value={newProduct.category}
-              onChange={(event) =>
-                setNewProduct({
-                  ...newProduct,
-                  category: event.target.value,
-                })
-              }
+              value={itemsPerPage}
+              onChange={(event) => {
+                setItemsPerPage(
+                  Number(event.target.value)
+                );
+                setCurrentPage(1);
+              }}
             >
-              <option>Phone</option>
-              <option>Notebook</option>
-              <option>Watch</option>
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
             </select>
 
-            <div style={styles.twoColumns}>
-              <div>
-                <label style={styles.label}>Price</label>
+            <span>
+              Showing{" "}
+              {filteredProducts.length
+                ? startIndex + 1
+                : 0}{" "}
+              -{" "}
+              {Math.min(
+                startIndex + itemsPerPage,
+                filteredProducts.length
+              )}{" "}
+              of {filteredProducts.length}
+            </span>
+          </div>
 
-                <input
-                  style={styles.input}
-                  value={newProduct.price}
-                  onChange={(event) =>
-                    setNewProduct({
-                      ...newProduct,
-                      price: event.target.value,
-                    })
+          <div className="pagination-buttons">
+            <button
+              type="button"
+              disabled={safePage === 1}
+              onClick={() =>
+                setCurrentPage((page) =>
+                  Math.max(1, page - 1)
+                )
+              }
+            >
+              <FaChevronLeft />
+            </button>
+
+            {Array.from(
+              { length: totalPages },
+              (_, index) => index + 1
+            ).map((page) => (
+              <button
+                type="button"
+                key={page}
+                className={
+                  safePage === page ? "active" : ""
+                }
+                onClick={() =>
+                  setCurrentPage(page)
+                }
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              disabled={safePage === totalPages}
+              onClick={() =>
+                setCurrentPage((page) =>
+                  Math.min(totalPages, page + 1)
+                )
+              }
+            >
+              <FaChevronRight />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {addProductOpen && (
+        <div
+          className="product-modal-overlay"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeProductModal();
+            }
+          }}
+        >
+          <div className="add-product-modal">
+            <div className="product-modal-tabs">
+              {tabs.map((tab) => (
+                <button
+                  type="button"
+                  key={tab}
+                  className={
+                    productTab === tab
+                      ? "active"
+                      : ""
                   }
-                  placeholder="$ 2,500"
-                />
-              </div>
-
-              <div>
-                <label style={styles.label}>Discount</label>
-
-                <input
-                  style={styles.input}
-                  value={newProduct.discount}
-                  onChange={(event) =>
-                    setNewProduct({
-                      ...newProduct,
-                      discount: event.target.value,
-                    })
+                  onClick={() =>
+                    setProductTab(tab)
                   }
-                  placeholder="% 15"
-                />
-              </div>
-            </div>
-
-            <label style={styles.label}>Product Images</label>
-
-            <div style={styles.uploadBox}>
-              ☁
-              <p>Drag and Drop or Browse to upload</p>
-            </div>
-
-            <div style={styles.imageRow}>
-              {[1, 2, 3, 4].map((item) => (
-                <div key={item} style={styles.imageBox}>
-                  🖼
-                </div>
+                >
+                  {tab}
+                </button>
               ))}
             </div>
 
-            <label style={styles.label}>Tags</label>
+            <button
+              type="button"
+              className="product-modal-close"
+              onClick={closeProductModal}
+            >
+              <FaTimes />
+            </button>
 
-            <input
-              style={styles.input}
-              value={newProduct.tags}
-              onChange={(event) =>
-                setNewProduct({
-                  ...newProduct,
-                  tags: event.target.value,
-                })
-              }
-              placeholder="Apple • Phone • 64GB"
-            />
+            {productTab === "Information" && (
+              <div className="product-tab-content">
+                <h2>Information</h2>
 
-            <div style={styles.buttonRow}>
+                <label>Product Name</label>
+
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleFormChange}
+                />
+
+                <label>Description</label>
+
+                <div className="description-editor">
+                  <div className="editor-toolbar">
+                    <span>A</span>
+                    <strong>B</strong>
+                    <em>I</em>
+                    <u>U</u>
+                    <span>☰</span>
+                    <span>☷</span>
+                  </div>
+
+                  <textarea
+                    name="description"
+                    placeholder="Type something"
+                    value={form.description}
+                    onChange={handleFormChange}
+                  />
+                </div>
+
+                <label>Category</label>
+
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleFormChange}
+                >
+                  <option>Phone</option>
+                  <option>Watch</option>
+                  <option>Notebook</option>
+                </select>
+
+                <label>Tags</label>
+
+                <input
+                  name="tags"
+                  value={form.tags}
+                  onChange={handleFormChange}
+                />
+              </div>
+            )}
+
+            {productTab === "Images" && (
+              <div className="product-tab-content">
+                <h2>Images</h2>
+
+                <div
+                  className={`product-upload-box ${
+                    dragActive ? "drag-active" : ""
+                  }`}
+                  onClick={() =>
+                    fileInputRef.current?.click()
+                  }
+                  onDragEnter={(event) => {
+                    event.preventDefault();
+                    setDragActive(true);
+                  }}
+                  onDragOver={(event) =>
+                    event.preventDefault()
+                  }
+                  onDragLeave={() =>
+                    setDragActive(false)
+                  }
+                  onDrop={handleDrop}
+                >
+                  <FaUpload />
+
+                  <p>
+                    Drag and Drop or{" "}
+                    <span>Browse</span> to upload
+                  </p>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    hidden
+                    onChange={handleFiles}
+                  />
+                </div>
+
+                <div className="image-list-heading">
+                  <span>Image</span>
+                  <span>Position</span>
+                  <span>Cover</span>
+                  <span />
+                </div>
+
+                {images.map((image, index) => (
+                  <div
+                    className="uploaded-image-row"
+                    key={image.id}
+                  >
+                    <div className="uploaded-image-preview">
+                      <img
+                        src={image.url}
+                        alt={image.name}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "7px",
+                        }}
+                      />
+                    </div>
+
+                    <span>{index + 1}</span>
+
+                    <button
+                      type="button"
+                      className={`cover-button ${
+                        image.cover ? "active" : ""
+                      }`}
+                      onClick={() =>
+                        setCoverImage(image.id)
+                      }
+                    >
+                      {image.cover && <FaCheck />}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="delete-image-button"
+                      onClick={() =>
+                        deleteImage(image.id)
+                      }
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {productTab === "Pricing" && (
+              <div className="product-tab-content">
+                <h2>Pricing</h2>
+
+                <label>Tax Excluded Price</label>
+
+                <input
+                  name="taxExcludedPrice"
+                  value={form.taxExcludedPrice}
+                  onChange={handleFormChange}
+                />
+
+                <label>Tax Included Price</label>
+
+                <input
+                  name="taxIncludedPrice"
+                  value={form.taxIncludedPrice}
+                  onChange={handleFormChange}
+                />
+
+                <div className="tax-label-row">
+                  <label>Tax Rule</label>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm((previous) => ({
+                        ...previous,
+                        taxRule: "Custom Tax",
+                      }))
+                    }
+                  >
+                    Create New Tax
+                  </button>
+                </div>
+
+                <select
+                  name="taxRule"
+                  value={form.taxRule}
+                  onChange={handleFormChange}
+                >
+                  <option>US-AL Rate (4%)</option>
+                  <option>
+                    US-CA Rate (7.25%)
+                  </option>
+                  <option>Custom Tax</option>
+                </select>
+
+                <div className="product-double-field">
+                  <div>
+                    <label>Unit Price</label>
+
+                    <input
+                      name="unitPrice"
+                      value={form.unitPrice}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label>Per</label>
+
+                    <input
+                      type="number"
+                      name="per"
+                      value={form.per}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {productTab === "Inventory" && (
+              <div className="product-tab-content">
+                <h2>Inventory</h2>
+
+                <label>SKU</label>
+
+                <input
+                  name="sku"
+                  value={form.sku}
+                  onChange={handleFormChange}
+                />
+
+                <label>Quantity</label>
+
+                <input
+                  type="number"
+                  name="quantity"
+                  value={form.quantity}
+                  onChange={handleFormChange}
+                />
+              </div>
+            )}
+
+            {productTab === "Shipping" && (
+              <div className="product-tab-content">
+                <h2>Shipping</h2>
+
+                <div className="product-double-field">
+                  <div>
+                    <label>Width</label>
+
+                    <input
+                      name="width"
+                      value={form.width}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label>Height</label>
+
+                    <input
+                      name="height"
+                      value={form.height}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="product-double-field">
+                  <div>
+                    <label>Depth</label>
+
+                    <input
+                      name="depth"
+                      value={form.depth}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+
+                  <div>
+                    <label>Weight</label>
+
+                    <input
+                      name="weight"
+                      value={form.weight}
+                      onChange={handleFormChange}
+                    />
+                  </div>
+                </div>
+
+                <label>Extra Shipping Fee</label>
+
+                <input
+                  name="shippingFee"
+                  value={form.shippingFee}
+                  onChange={handleFormChange}
+                />
+              </div>
+            )}
+
+            <div className="product-modal-actions">
               <button
-                style={styles.saveButton}
-                onClick={addProduct}
+                type="button"
+                className="product-save-button"
+                onClick={handleSaveProduct}
               >
                 Save
               </button>
 
               <button
-                style={styles.cancelButton}
-                onClick={() => setAddOpen(false)}
+                type="button"
+                className="product-cancel-button"
+                onClick={closeProductModal}
               >
                 Cancel
               </button>
             </div>
           </div>
-        </>
-      )}
-
-      {editOpen && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.modal}>
-            <button
-              style={styles.closeButton}
-              onClick={() => setEditOpen(false)}
-            >
-              ✕
-            </button>
-
-            <div style={styles.modalTabs}>
-              {modalTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    ...styles.modalTab,
-                    color:
-                      activeTab === tab ? "#16a34a" : "#555",
-                    borderBottom:
-                      activeTab === tab
-                        ? "2px solid #16a34a"
-                        : "2px solid transparent",
-                  }}
-                >
-                  {tab.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
-            <div style={styles.modalBody}>
-              {activeTab === "Information" && <Information />}
-              {activeTab === "Images" && <Images />}
-              {activeTab === "Pricing" && <Pricing />}
-              {activeTab === "Inventory" && <Inventory />}
-              {activeTab === "Shipping" && <Shipping />}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {quickViewOpen && selectedProduct && (
-        <div style={styles.modalOverlay}>
-          <div style={styles.quickView}>
-            <button
-              style={styles.closeButton}
-              onClick={() => setQuickViewOpen(false)}
-            >
-              ✕
-            </button>
-
-            <div style={styles.quickImage}>🖼</div>
-
-            <div style={styles.quickInfo}>
-              <h2>{selectedProduct.name}</h2>
-
-              <p style={styles.description}>
-                We have always supported our customers with
-                high-quality products and modern technology.
-              </p>
-
-              <label style={styles.label}>Quantity</label>
-
-              <div style={styles.quantity}>
-                <button
-                  style={styles.quantityButton}
-                  onClick={() =>
-                    setQuantity((value) =>
-                      Math.max(1, value - 1)
-                    )
-                  }
-                >
-                  -
-                </button>
-
-                <span>{quantity}</span>
-
-                <button
-                  style={styles.quantityButton}
-                  onClick={() =>
-                    setQuantity((value) => value + 1)
-                  }
-                >
-                  +
-                </button>
-              </div>
-
-              <h2>{selectedProduct.price}</h2>
-
-              <button style={styles.cartButton}>
-                Add to Cart
-              </button>
-
-              <h3>Specifications</h3>
-
-              <Spec name="Display" value="6.1 inch" />
-              <Spec name="Chip" value="A13 Bionic chip" />
-              <Spec
-                name="Camera"
-                value="Dual 12MP Ultra Wide"
-              />
-              <Spec name="OS" value="iOS 13" />
-              <Spec name="Connector" value="4G LTE" />
-            </div>
-          </div>
         </div>
       )}
     </div>
   );
 }
-
-function ProductTable({
-  products,
-  onEdit,
-  onProductClick,
-}) {
-  return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>PRODUCT NAME</th>
-            <th>PRODUCT NO.</th>
-            <th>CATEGORY</th>
-            <th>DATE</th>
-            <th>PRICE</th>
-            <th>STATUS</th>
-            <th></th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>
-                <div style={styles.productName}>
-                  <input type="checkbox" />
-
-                  <span
-                    style={styles.clickableProduct}
-                    onClick={() => onProductClick(product)}
-                  >
-                    {product.name}
-                  </span>
-                </div>
-              </td>
-
-              <td>{product.id}</td>
-              <td>{product.category}</td>
-              <td>{product.date}</td>
-              <td>{product.price}</td>
-
-              <td>
-                <Status status={product.status} />
-              </td>
-
-              <td>
-                <button
-                  style={styles.moreButton}
-                  onClick={onEdit}
-                >
-                  ⋮
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ProductGrid({ products, onProductClick }) {
-  return (
-    <div style={styles.productGrid}>
-      {products.map((product) => (
-        <div
-          key={product.id}
-          style={styles.productCard}
-          onClick={() => onProductClick(product)}
-        >
-          <Status status={product.status} />
-
-          <div style={styles.productImage}>🖼</div>
-
-          <strong>{product.name}</strong>
-
-          <div style={styles.cardDetails}>
-            <span>{product.category}</span>
-            <span>{product.price}</span>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function Status({ status }) {
-  return (
-    <span
-      style={{
-        ...styles.status,
-        background:
-          status === "Available" ? "#ecfdf5" : "#fff7ed",
-        color:
-          status === "Available" ? "#16a34a" : "#d97706",
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-
-function Information() {
-  return (
-    <>
-      <h2>Information</h2>
-
-      <label style={styles.label}>Product Name</label>
-
-      <input
-        style={styles.input}
-        defaultValue="Apple iPhone 11 Pro Max 64GB Midnight Green"
-      />
-
-      <label style={styles.label}>Description</label>
-
-      <div style={styles.editor}>
-        <div style={styles.editorTools}>
-          A ▾ &nbsp; B &nbsp; / &nbsp; U &nbsp; ≡
-        </div>
-
-        <textarea
-          style={styles.textarea}
-          placeholder="Type something"
-        />
-      </div>
-
-      <label style={styles.label}>Category</label>
-
-      <select style={styles.input}>
-        <option>Phone</option>
-        <option>Notebook</option>
-        <option>Watch</option>
-      </select>
-
-      <label style={styles.label}>Tags</label>
-
-      <input
-        style={styles.input}
-        defaultValue="Apple • Phone • 64GB"
-      />
-
-      <ModalButtons />
-    </>
-  );
-}
-
-function Images() {
-  return (
-    <>
-      <h2>Images</h2>
-
-      <div style={styles.uploadBox}>
-        ☁
-        <p>Drag and Drop or Browse to upload</p>
-      </div>
-
-      {[1, 2, 3].map((item) => (
-        <div key={item} style={styles.imageListItem}>
-          <span>☰</span>
-          <div style={styles.smallImage}>🖼</div>
-          <span style={{ flex: 1 }}>{item}</span>
-          <span>✓</span>
-          <span>♙</span>
-        </div>
-      ))}
-
-      <ModalButtons />
-    </>
-  );
-}
-
-function Pricing() {
-  return (
-    <>
-      <h2>Pricing</h2>
-
-      <label style={styles.label}>Tax Excluded Price</label>
-      <input style={styles.input} defaultValue="$ 2500" />
-
-      <label style={styles.label}>Tax Included Price</label>
-      <input style={styles.input} defaultValue="$ 2600" />
-
-      <label style={styles.label}>Tax Rule</label>
-
-      <input
-        style={styles.input}
-        defaultValue="US-Tax Rate (4%)"
-      />
-
-      <div style={styles.twoColumns}>
-        <div>
-          <label style={styles.label}>Unit Price</label>
-          <input style={styles.input} defaultValue="$ 10" />
-        </div>
-
-        <div>
-          <label style={styles.label}>Per</label>
-          <input style={styles.input} defaultValue="1" />
-        </div>
-      </div>
-
-      <ModalButtons />
-    </>
-  );
-}
-
-function Inventory() {
-  return (
-    <>
-      <h2>Inventory</h2>
-
-      <label style={styles.label}>SKU</label>
-      <input style={styles.input} placeholder="SKU" />
-
-      <label style={styles.label}>Quantity</label>
-
-      <input
-        style={styles.input}
-        type="number"
-        defaultValue="0"
-      />
-
-      <ModalButtons />
-    </>
-  );
-}
-
-function Shipping() {
-  return (
-    <>
-      <h2>Shipping</h2>
-
-      <div style={styles.twoColumns}>
-        <div>
-          <label style={styles.label}>Width</label>
-          <input style={styles.input} placeholder="0cm" />
-        </div>
-
-        <div>
-          <label style={styles.label}>Height</label>
-          <input style={styles.input} placeholder="0cm" />
-        </div>
-
-        <div>
-          <label style={styles.label}>Depth</label>
-          <input style={styles.input} placeholder="0cm" />
-        </div>
-
-        <div>
-          <label style={styles.label}>Weight</label>
-          <input style={styles.input} placeholder="0kg" />
-        </div>
-      </div>
-
-      <label style={styles.label}>Extra Shipping Fee</label>
-
-      <input style={styles.input} defaultValue="$ 0.00" />
-
-      <ModalButtons />
-    </>
-  );
-}
-
-function ModalButtons() {
-  return (
-    <div style={styles.buttonRow}>
-      <button style={styles.saveButton}>Save</button>
-      <button style={styles.cancelButton}>Cancel</button>
-    </div>
-  );
-}
-
-function Spec({ name, value }) {
-  return (
-    <div style={styles.spec}>
-      <span>{name}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-const styles = {
-  page: {
-    padding: "25px",
-    background: "#f5f7f6",
-    minHeight: "100vh",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-
-  title: {
-    margin: 0,
-  },
-
-  statusTabs: {
-    display: "flex",
-    gap: "15px",
-    marginTop: "20px",
-  },
-
-  statusTab: {
-    border: "none",
-    background: "transparent",
-    padding: "10px",
-    cursor: "pointer",
-  },
-
-  headerActions: {
-    display: "flex",
-    gap: "10px",
-  },
-
-  exportButton: {
-    padding: "10px 16px",
-    background: "#fff",
-    border: "1px solid #ddd",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-
-  exportMenu: {
-    position: "absolute",
-    top: "45px",
-    right: 0,
-    width: "130px",
-    background: "#fff",
-    boxShadow: "0 8px 25px rgba(0,0,0,.15)",
-    borderRadius: "6px",
-    zIndex: 50,
-  },
-
-  exportItem: {
-    padding: "11px 15px",
-    cursor: "pointer",
-    borderBottom: "1px solid #eee",
-  },
-
-  addButton: {
-    width: "42px",
-    height: "42px",
-    border: "none",
-    background: "#16a34a",
-    color: "#fff",
-    borderRadius: "6px",
-    fontSize: "22px",
-    cursor: "pointer",
-  },
-
-  viewButtons: {
-    display: "flex",
-    justifyContent: "flex-end",
-    margin: "10px 0",
-  },
-
-  viewButton: {
-    border: "none",
-    background: "transparent",
-    fontSize: "20px",
-    cursor: "pointer",
-  },
-
-  contentCard: {
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "8px",
-  },
-
-  toolbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: "20px",
-  },
-
-  searchWrap: {
-    position: "relative",
-    width: "70%",
-  },
-
-  search: {
-    width: "100%",
-    boxSizing: "border-box",
-    padding: "11px",
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-  },
-
-  suggestions: {
-    position: "absolute",
-    top: "45px",
-    width: "100%",
-    background: "#fff",
-    boxShadow: "0 8px 20px rgba(0,0,0,.15)",
-    zIndex: 40,
-  },
-
-  suggestion: {
-    padding: "12px",
-    borderBottom: "1px solid #eee",
-    cursor: "pointer",
-  },
-
-  actionButton: {
-    padding: "10px 18px",
-    border: "1px solid #ddd",
-    background: "#fff",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  filterPopup: {
-    position: "absolute",
-    right: 0,
-    top: "45px",
-    width: "300px",
-    background: "#fff",
-    padding: "20px",
-    boxShadow: "0 10px 30px rgba(0,0,0,.18)",
-    zIndex: 60,
-  },
-
-  label: {
-    display: "block",
-    fontSize: "13px",
-    color: "#777",
-    margin: "15px 0 7px",
-  },
-
-  input: {
-    width: "100%",
-    boxSizing: "border-box",
-    padding: "11px",
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-  },
-
-  twoColumns: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "15px",
-  },
-
-  priceRow: {
-    display: "flex",
-    justifyContent: "space-between",
-  },
-
-  saveButton: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "10px 25px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  cancelButton: {
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-  },
-
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-  },
-
-  productName: {
-    display: "flex",
-    gap: "10px",
-    alignItems: "center",
-    padding: "14px 0",
-  },
-
-  clickableProduct: {
-    cursor: "pointer",
-  },
-
-  status: {
-    padding: "5px 10px",
-    borderRadius: "15px",
-    fontSize: "12px",
-  },
-
-  moreButton: {
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: "18px",
-  },
-
-  productGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "20px",
-  },
-
-  productCard: {
-    border: "1px solid #eee",
-    padding: "15px",
-    borderRadius: "8px",
-    cursor: "pointer",
-  },
-
-  productImage: {
-    height: "150px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    fontSize: "40px",
-  },
-
-  cardDetails: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "15px",
-    color: "#777",
-  },
-
-  pagination: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "20px",
-    color: "#888",
-  },
-
-  activePage: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "8px 12px",
-    borderRadius: "5px",
-  },
-
-  pageButton: {
-    border: "none",
-    background: "transparent",
-    padding: "8px 12px",
-  },
-
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.2)",
-    zIndex: 100,
-  },
-
-  addPanel: {
-    position: "fixed",
-    right: 0,
-    top: 0,
-    width: "430px",
-    height: "100vh",
-    background: "#fff",
-    padding: "25px",
-    boxSizing: "border-box",
-    overflowY: "auto",
-    zIndex: 101,
-  },
-
-  editor: {
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-  },
-
-  editorTools: {
-    padding: "10px",
-    borderBottom: "1px solid #ddd",
-  },
-
-  textarea: {
-    width: "100%",
-    height: "100px",
-    border: "none",
-    padding: "10px",
-    boxSizing: "border-box",
-    resize: "none",
-  },
-
-  uploadBox: {
-    border: "2px dashed #ddd",
-    padding: "30px",
-    textAlign: "center",
-    color: "#888",
-  },
-
-  imageRow: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "15px",
-  },
-
-  imageBox: {
-    width: "55px",
-    height: "55px",
-    border: "1px solid #ddd",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  buttonRow: {
-    display: "flex",
-    gap: "15px",
-    marginTop: "25px",
-  },
-
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.25)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 200,
-  },
-
-  modal: {
-    width: "650px",
-    maxHeight: "90vh",
-    overflowY: "auto",
-    background: "#fff",
-    borderRadius: "8px",
-    position: "relative",
-  },
-
-  closeButton: {
-    position: "absolute",
-    right: "12px",
-    top: "10px",
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: "18px",
-    zIndex: 5,
-  },
-
-  modalTabs: {
-    display: "flex",
-    borderBottom: "1px solid #eee",
-    padding: "0 20px",
-  },
-
-  modalTab: {
-    border: "none",
-    background: "transparent",
-    padding: "18px 12px",
-    fontSize: "11px",
-    cursor: "pointer",
-  },
-
-  modalBody: {
-    padding: "25px",
-  },
-
-  imageListItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-    padding: "10px",
-    borderBottom: "1px solid #eee",
-  },
-
-  smallImage: {
-    width: "45px",
-    height: "45px",
-    border: "1px solid #ddd",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  quickView: {
-    width: "800px",
-    maxWidth: "90%",
-    maxHeight: "90vh",
-    overflowY: "auto",
-    background: "#fff",
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    borderRadius: "8px",
-    position: "relative",
-  },
-
-  quickImage: {
-    minHeight: "500px",
-    background: "#f5f5f5",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "60px",
-  },
-
-  quickInfo: {
-    padding: "35px",
-  },
-
-  description: {
-    color: "#888",
-    lineHeight: "1.6",
-  },
-
-  quantity: {
-    display: "flex",
-    gap: "15px",
-    alignItems: "center",
-  },
-
-  quantityButton: {
-    width: "35px",
-    height: "35px",
-    border: "1px solid #ddd",
-    background: "#fff",
-    cursor: "pointer",
-  },
-
-  cartButton: {
-    width: "100%",
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "12px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  spec: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "12px 0",
-    borderBottom: "1px solid #eee",
-  },
-};
 
 export default Ecommerce;

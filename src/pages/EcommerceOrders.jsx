@@ -1,16 +1,35 @@
 import { useMemo, useState } from "react";
+import {
+  FaSearch,
+  FaSlidersH,
+  FaChevronDown,
+  FaChevronLeft,
+  FaChevronRight,
+  FaAngleDoubleLeft,
+  FaAngleDoubleRight,
+  FaEllipsisV,
+  FaDownload,
+  FaPrint,
+  FaFileExcel,
+  FaFilePdf,
+  FaFileCsv,
+  FaTimes,
+  FaChevronUp,
+} from "react-icons/fa";
 
-const ordersData = [
+import "../styles/EcommerceOrders.css";
+
+const initialOrders = [
   {
-    id: "#790842",
-    customer: "Chloe Warren",
-    date: "12.01.20",
+    id: "#790841",
+    customer: "Claire Warren",
+    date: "12.09.20",
     total: "$145.85",
     payment: "PayPal",
     status: "Shipped",
   },
   {
-    id: "#790846",
+    id: "#790842",
     customer: "Theresa Robertson",
     date: "12.09.20",
     total: "$225.15",
@@ -18,7 +37,7 @@ const ordersData = [
     status: "Shipped",
   },
   {
-    id: "#790841",
+    id: "#790843",
     customer: "Nathan Hawkins",
     date: "12.09.20",
     total: "$45.55",
@@ -26,23 +45,23 @@ const ordersData = [
     status: "Shipped",
   },
   {
-    id: "#790848",
+    id: "#790844",
     customer: "Lily Williamson",
     date: "12.09.20",
-    total: "$106.25",
+    total: "$305.25",
     payment: "Credit Card",
     status: "Processing",
   },
   {
-    id: "#790849",
+    id: "#790845",
     customer: "Brooklyn Steward",
     date: "12.09.20",
-    total: "$458.80",
+    total: "$483.80",
     payment: "Credit Card",
     status: "Shipped",
   },
   {
-    id: "#790850",
+    id: "#790846",
     customer: "Norma Flores",
     date: "12.09.20",
     total: "$128.79",
@@ -50,16 +69,16 @@ const ordersData = [
     status: "Processing",
   },
   {
-    id: "#790851",
-    customer: "Leslie McKinney",
+    id: "#790847",
+    customer: "Leslie Mckinney",
     date: "12.09.20",
     total: "$105.05",
     payment: "Credit Card",
     status: "Cancelled",
   },
   {
-    id: "#790852",
-    customer: "Gregory Block",
+    id: "#790848",
+    customer: "Gregory Black",
     date: "12.09.20",
     total: "$1028.15",
     payment: "PayPal",
@@ -70,135 +89,306 @@ const ordersData = [
 const products = [
   {
     name: "MacBook Pro 15 Retina Touch Bar MV902",
-    price: "$2,500",
+    price: "$2.500",
     quantity: 1,
+    total: "$2.500",
   },
   {
     name: "Apple Watch Series 5 Edition GPS + Cellular",
-    price: "$3,000",
+    price: "$1.500",
     quantity: 2,
+    total: "$3.000",
   },
   {
     name: "Apple iPhone 11 Pro Max 256GB Space Gray",
-    price: "$1,100",
+    price: "$1.100",
     quantity: 1,
+    total: "$1.100",
   },
 ];
 
 function EcommerceOrders() {
-  const [activeStatus, setActiveStatus] = useState("All");
+  const [orders] = useState(initialOrders);
+
+  const [activeTab, setActiveTab] = useState("All");
   const [search, setSearch] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [productOpen, setProductOpen] = useState(false);
-
-  const [activeTab, setActiveTab] = useState("Order Details");
   const [exportOpen, setExportOpen] = useState(false);
+  const [actionsOpen, setActionsOpen] = useState(false);
+
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [detailTab, setDetailTab] = useState("ORDER DETAILS");
+
+  const [detailExportOpen, setDetailExportOpen] = useState(false);
+
+  const [paymentMethod, setPaymentMethod] =
+    useState("Credit Card");
+
+  const [shippingMethod, setShippingMethod] =
+    useState("Carrier");
+
+  const [fulfilmentStatus, setFulfilmentStatus] =
+    useState("Delivered");
+
+  const [paymentStatus, setPaymentStatus] =
+    useState("Paid");
+
+  const [billingOpen, setBillingOpen] = useState(true);
+  const [shippingOpen, setShippingOpen] = useState(false);
+
+  const tabs = ["All", "Pending", "Processing", "Refunded"];
 
   const filteredOrders = useMemo(() => {
-    return ordersData.filter((order) => {
-      const searchMatch =
+    return orders.filter((order) => {
+      const matchesSearch =
+        order.id.toLowerCase().includes(search.toLowerCase()) ||
         order.customer
           .toLowerCase()
           .includes(search.toLowerCase()) ||
-        order.id.toLowerCase().includes(search.toLowerCase());
+        order.payment
+          .toLowerCase()
+          .includes(search.toLowerCase());
 
-      const statusMatch =
-        activeStatus === "All" ||
-        order.status === activeStatus;
+      let matchesTab = true;
 
-      return searchMatch && statusMatch;
+      if (activeTab === "Pending") {
+        matchesTab = order.status === "Pending";
+      }
+
+      if (activeTab === "Processing") {
+        matchesTab = order.status === "Processing";
+      }
+
+      if (activeTab === "Refunded") {
+        matchesTab = order.status === "Refunded";
+      }
+
+      return matchesSearch && matchesTab;
     });
-  }, [search, activeStatus]);
+  }, [orders, search, activeTab]);
+
+  const toggleOrder = (id) => {
+    setSelectedOrders((previous) =>
+      previous.includes(id)
+        ? previous.filter((item) => item !== id)
+        : [...previous, id]
+    );
+  };
+
+  const toggleAll = () => {
+    if (
+      selectedOrders.length === filteredOrders.length &&
+      filteredOrders.length > 0
+    ) {
+      setSelectedOrders([]);
+      return;
+    }
+
+    setSelectedOrders(filteredOrders.map((order) => order.id));
+  };
 
   const openOrder = (order) => {
     setSelectedOrder(order);
-    setActiveTab("Order Details");
-    setModalOpen(true);
+    setDetailTab("ORDER DETAILS");
+    setDetailExportOpen(false);
+  };
+
+  const closeOrder = () => {
+    setSelectedOrder(null);
+    setDetailExportOpen(false);
+  };
+
+  const handleExport = (type) => {
+    alert(`${type} export selected`);
+    setExportOpen(false);
+    setDetailExportOpen(false);
+  };
+
+  const handleAction = (action) => {
+    if (!selectedOrders.length) {
+      alert("Please select at least one order");
+      setActionsOpen(false);
+      return;
+    }
+
+    alert(
+      `${action}: ${selectedOrders.length} order(s) selected`
+    );
+
+    setActionsOpen(false);
   };
 
   return (
-    <div style={styles.page}>
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>Orders</h1>
+    <div className="orders-page">
+      <div className="orders-header">
+        <h1>Orders</h1>
 
-          <div style={styles.tabs}>
-            {["All", "Pending", "Processing", "Refunded"].map(
-              (status) => (
+        <div className="orders-export-wrapper">
+          <button
+            type="button"
+            className="orders-export-button"
+            onClick={() => setExportOpen((prev) => !prev)}
+          >
+            <FaDownload />
+            Export
+            <FaChevronDown />
+          </button>
+
+          {exportOpen && (
+            <div className="orders-export-menu">
+              <button onClick={() => handleExport("Print")}>
+                <FaPrint />
+                Print
+              </button>
+
+              <button onClick={() => handleExport("Excel")}>
+                <FaFileExcel />
+                Excel
+              </button>
+
+              <button onClick={() => handleExport("PDF")}>
+                <FaFilePdf />
+                PDF
+              </button>
+
+              <button onClick={() => handleExport("CSV")}>
+                <FaFileCsv />
+                CSV
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="orders-tabs">
+        {tabs.map((tab) => (
+          <button
+            type="button"
+            key={tab}
+            className={activeTab === tab ? "active" : ""}
+            onClick={() => {
+              setActiveTab(tab);
+              setCurrentPage(1);
+            }}
+          >
+            {tab}
+
+            <span>
+              {tab === "All" && "983"}
+              {tab === "Pending" && "128"}
+              {tab === "Processing" && "15"}
+              {tab === "Refunded" && "8"}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <section className="orders-table-card">
+        <div className="orders-toolbar">
+          <div className="orders-search">
+            <FaSearch />
+
+            <input
+              type="text"
+              placeholder="Search order..."
+              value={search}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
+            />
+
+            <FaSlidersH />
+          </div>
+
+          <div className="orders-actions-wrapper">
+            <button
+              type="button"
+              className="orders-actions-button"
+              onClick={() =>
+                setActionsOpen((previous) => !previous)
+              }
+            >
+              Actions
+              <FaChevronDown />
+            </button>
+
+            {actionsOpen && (
+              <div className="orders-actions-menu">
                 <button
-                  key={status}
-                  onClick={() => setActiveStatus(status)}
-                  style={{
-                    ...styles.tab,
-                    color:
-                      activeStatus === status
-                        ? "#16a34a"
-                        : "#888",
-                    borderBottom:
-                      activeStatus === status
-                        ? "2px solid #16a34a"
-                        : "2px solid transparent",
-                  }}
+                  onClick={() =>
+                    handleAction("Mark as processing")
+                  }
                 >
-                  {status}
+                  Mark as processing
                 </button>
-              )
+
+                <button
+                  onClick={() =>
+                    handleAction("Mark as shipped")
+                  }
+                >
+                  Mark as shipped
+                </button>
+
+                <button
+                  onClick={() =>
+                    handleAction("Refund orders")
+                  }
+                >
+                  Refund
+                </button>
+              </div>
             )}
           </div>
         </div>
 
-        <ExportButton
-          exportOpen={exportOpen}
-          setExportOpen={setExportOpen}
-        />
-      </div>
-
-      <div style={styles.card}>
-        <div style={styles.toolbar}>
-          <input
-            style={styles.search}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search order..."
-          />
-
-          <button style={styles.actionButton}>
-            Actions ▾
-          </button>
-        </div>
-
-        <div style={{ overflowX: "auto" }}>
-          <table style={styles.table}>
+        <div className="orders-table-wrapper">
+          <table className="orders-table">
             <thead>
               <tr>
-                <th></th>
-                <th>ORDER NO.</th>
-                <th>CUSTOMER</th>
-                <th>DATE</th>
-                <th>TOTAL</th>
-                <th>PAYMENT</th>
-                <th>STATUS</th>
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={
+                      filteredOrders.length > 0 &&
+                      selectedOrders.length ===
+                        filteredOrders.length
+                    }
+                    onChange={toggleAll}
+                  />
+                </th>
+
+                <th>ORDER NO.⌄</th>
+                <th>CUSTOMER⌄</th>
+                <th>DATE⌄</th>
+                <th>TOTAL⌄</th>
+                <th>PAYMENT⌄</th>
+                <th>STATUS⌄</th>
+                <th />
               </tr>
             </thead>
 
             <tbody>
               {filteredOrders.map((order) => (
-                <tr
-                  key={order.id}
-                  style={styles.tableRow}
-                  onDoubleClick={() => openOrder(order)}
-                >
+                <tr key={order.id}>
                   <td>
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      checked={selectedOrders.includes(order.id)}
+                      onChange={() => toggleOrder(order.id)}
+                    />
                   </td>
 
-                  <td
-                    style={styles.orderId}
-                    onClick={() => openOrder(order)}
-                  >
-                    {order.id}
+                  <td>
+                    <button
+                      type="button"
+                      className="order-number-button"
+                      onClick={() => openOrder(order)}
+                    >
+                      {order.id}
+                    </button>
                   </td>
 
                   <td>{order.customer}</td>
@@ -207,679 +397,552 @@ function EcommerceOrders() {
                   <td>{order.payment}</td>
 
                   <td>
-                    <Status status={order.status} />
+                    <span
+                      className={`order-status ${order.status.toLowerCase()}`}
+                    >
+                      {order.status}
+                    </span>
+                  </td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="order-more-button"
+                      onClick={() => openOrder(order)}
+                    >
+                      <FaEllipsisV />
+                    </button>
                   </td>
                 </tr>
               ))}
+
+              {!filteredOrders.length && (
+                <tr>
+                  <td
+                    colSpan="8"
+                    className="orders-empty"
+                  >
+                    No orders found
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        <div style={styles.pagination}>
-          <span>
-            Showing 1 - {filteredOrders.length} of 100
-          </span>
+        <div className="orders-pagination">
+          <div className="orders-pagination-left">
+            <select defaultValue="10">
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="50">50</option>
+            </select>
 
-          <div>
-            <button style={styles.activePage}>1</button>
-            <button style={styles.pageButton}>2</button>
-            <button style={styles.pageButton}>3</button>
-            <button style={styles.pageButton}>›</button>
+            <span>Showing 1 - 10 of 100</span>
           </div>
-        </div>
-      </div>
 
-      {modalOpen && selectedOrder && (
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
+          <div className="orders-pagination-buttons">
             <button
-              style={styles.close}
-              onClick={() => setModalOpen(false)}
+              type="button"
+              onClick={() => setCurrentPage(1)}
             >
-              ✕
+              <FaAngleDoubleLeft />
             </button>
 
-            <div style={styles.modalTabs}>
-              {["Order Details", "Products", "Invoice"].map(
-                (tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    style={{
-                      ...styles.modalTab,
-                      color:
-                        activeTab === tab
-                          ? "#16a34a"
-                          : "#555",
-                      borderBottom:
-                        activeTab === tab
-                          ? "2px solid #16a34a"
-                          : "2px solid transparent",
-                    }}
-                  >
-                    {tab.toUpperCase()}
-                  </button>
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((page) =>
+                  Math.max(1, page - 1)
                 )
-              )}
-            </div>
-
-            <div style={styles.modalBody}>
-              {activeTab === "Order Details" && (
-                <OrderDetails order={selectedOrder} />
-              )}
-
-              {activeTab === "Products" && (
-                <Products
-                  onProductClick={() => setProductOpen(true)}
-                />
-              )}
-
-              {activeTab === "Invoice" && (
-                <Invoice order={selectedOrder} />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {productOpen && (
-        <div style={styles.productOverlay}>
-          <div style={styles.productModal}>
-            <button
-              style={styles.close}
-              onClick={() => setProductOpen(false)}
+              }
             >
-              ✕
+              <FaChevronLeft />
             </button>
 
-            <div style={styles.productImage}>
-              🖼
-            </div>
-
-            <div style={styles.productInfo}>
-              <h2>Apple iPhone 11 64GB Purple</h2>
-
-              <p style={styles.muted}>
-                We have always supported customers with
-                high-quality products and modern technology.
-              </p>
-
-              <label style={styles.label}>Quantity</label>
-
-              <div style={styles.quantity}>
-                <button>-</button>
-                <span>1</span>
-                <button>+</button>
-              </div>
-
-              <h2>$699</h2>
-
-              <button style={styles.cartButton}>
-                Add to Cart
+            {[1, 2, 3].map((page) => (
+              <button
+                type="button"
+                key={page}
+                className={
+                  currentPage === page ? "active" : ""
+                }
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
               </button>
+            ))}
 
-              <h3>Specifications</h3>
+            <span>...</span>
 
-              <Spec name="Display" value="6.1 inch" />
-              <Spec name="Chip" value="A13 Bionic chip" />
-              <Spec name="Camera" value="Dual 12MP Ultra Wide" />
-              <Spec name="OS" value="iOS 13" />
-              <Spec name="Connector" value="4G LTE" />
+            <button
+              type="button"
+              onClick={() => setCurrentPage(5)}
+              className={currentPage === 5 ? "active" : ""}
+            >
+              5
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                setCurrentPage((page) =>
+                  Math.min(5, page + 1)
+                )
+              }
+            >
+              <FaChevronRight />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setCurrentPage(5)}
+            >
+              <FaAngleDoubleRight />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {selectedOrder && (
+        <div
+          className="order-modal-overlay"
+          onMouseDown={closeOrder}
+        >
+          <div
+            className={`order-detail-modal ${
+              detailTab === "INVOICE"
+                ? "invoice-modal"
+                : ""
+            }`}
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="order-modal-close"
+              onClick={closeOrder}
+            >
+              <FaTimes />
+            </button>
+
+            <div className="order-detail-tabs">
+              {[
+                "ORDER DETAILS",
+                "PRODUCTS",
+                "INVOICE",
+              ].map((tab) => (
+                <button
+                  type="button"
+                  key={tab}
+                  className={
+                    detailTab === tab ? "active" : ""
+                  }
+                  onClick={() => {
+                    setDetailTab(tab);
+                    setDetailExportOpen(false);
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
+
+            {detailTab === "ORDER DETAILS" && (
+              <div className="order-details-content">
+                <div className="order-detail-title-row">
+                  <h2>
+                    Orders{" "}
+                    <span>{selectedOrder.id}</span>
+                  </h2>
+
+                  <div className="detail-export-wrapper">
+                    <button
+                      type="button"
+                      className="detail-export-button"
+                      onClick={() =>
+                        setDetailExportOpen(
+                          (previous) => !previous
+                        )
+                      }
+                    >
+                      <FaDownload />
+                      Export
+                      <FaChevronDown />
+                    </button>
+
+                    {detailExportOpen && (
+                      <div className="detail-export-menu">
+                        <button
+                          onClick={() =>
+                            handleExport("Print")
+                          }
+                        >
+                          <FaPrint />
+                          Print
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            handleExport("Excel")
+                          }
+                        >
+                          <FaFileExcel />
+                          Excel
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            handleExport("PDF")
+                          }
+                        >
+                          <FaFilePdf />
+                          PDF
+                        </button>
+
+                        <button
+                          onClick={() =>
+                            handleExport("CSV")
+                          }
+                        >
+                          <FaFileCsv />
+                          CSV
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <section className="order-customer-section">
+                  <h3>Customer</h3>
+
+                  <div className="order-customer-headings">
+                    <span>NAME</span>
+                    <span>EMAIL</span>
+                    <span>PHONE</span>
+                    <span>LOCATION</span>
+                  </div>
+
+                  <div className="order-customer-data">
+                    <div className="order-customer-name">
+                      <div className="customer-avatar">
+                        R
+                      </div>
+
+                      <span>Regina Cooper</span>
+                    </div>
+
+                    <span>example@mail.com</span>
+                    <span>+1(070) 4567-8800</span>
+                    <span>993 E. Brewer St.</span>
+                  </div>
+                </section>
+
+                <div className="order-method-grid">
+                  <section>
+                    <h3>Payment method</h3>
+
+                    <select
+                      value={paymentMethod}
+                      onChange={(event) =>
+                        setPaymentMethod(event.target.value)
+                      }
+                    >
+                      <option>Credit Card</option>
+                      <option>PayPal</option>
+                      <option>Payoneer</option>
+                    </select>
+
+                    <p>
+                      Transaction ID: 000001-TXHQ
+                    </p>
+
+                    <p>Amount: $2.500</p>
+                  </section>
+
+                  <section>
+                    <h3>Shipping method</h3>
+
+                    <select
+                      value={shippingMethod}
+                      onChange={(event) =>
+                        setShippingMethod(event.target.value)
+                      }
+                    >
+                      <option>Carrier</option>
+                      <option>Express</option>
+                      <option>Standard</option>
+                    </select>
+
+                    <p>
+                      Tracking Code: FX-012345-6
+                    </p>
+
+                    <p>Date: 12.09.2019</p>
+                  </section>
+
+                  <section className="order-status-controls">
+                    <label>
+                      <span>Fulfilment status</span>
+
+                      <select
+                        value={fulfilmentStatus}
+                        onChange={(event) =>
+                          setFulfilmentStatus(
+                            event.target.value
+                          )
+                        }
+                      >
+                        <option>Delivered</option>
+                        <option>Processing</option>
+                        <option>Shipped</option>
+                      </select>
+                    </label>
+
+                    <label>
+                      <span>Payment status</span>
+
+                      <select
+                        value={paymentStatus}
+                        onChange={(event) =>
+                          setPaymentStatus(
+                            event.target.value
+                          )
+                        }
+                      >
+                        <option>Paid</option>
+                        <option>Pending</option>
+                        <option>Refunded</option>
+                      </select>
+                    </label>
+                  </section>
+                </div>
+
+                <section className="order-address-box">
+                  <button
+                    type="button"
+                    className="address-heading"
+                    onClick={() =>
+                      setBillingOpen(
+                        (previous) => !previous
+                      )
+                    }
+                  >
+                    <span>Billing address</span>
+
+                    {billingOpen ? (
+                      <FaChevronUp />
+                    ) : (
+                      <FaChevronDown />
+                    )}
+                  </button>
+
+                  {billingOpen && (
+                    <div className="address-details-grid">
+                      <div>
+                        <p>First name: Regina</p>
+                        <p>Last name: Cooper</p>
+                        <p>
+                          Address: 993 E. Brewer St.
+                          Holtsville
+                        </p>
+                      </div>
+
+                      <div>
+                        <p>State/Region: New York</p>
+                        <p>City: New York</p>
+                        <p>Country: United States</p>
+                      </div>
+
+                      <div>
+                        <p>Phone: +1(070) 4567-8800</p>
+                        <p>Email: example@mail.com</p>
+                        <p>Postcode: 11742</p>
+                      </div>
+                    </div>
+                  )}
+                </section>
+
+                <section className="order-address-box">
+                  <button
+                    type="button"
+                    className="address-heading"
+                    onClick={() =>
+                      setShippingOpen(
+                        (previous) => !previous
+                      )
+                    }
+                  >
+                    <span>Shipping address</span>
+
+                    {shippingOpen ? (
+                      <FaChevronUp />
+                    ) : (
+                      <FaChevronDown />
+                    )}
+                  </button>
+
+                  {shippingOpen && (
+                    <div className="address-details-grid">
+                      <div>
+                        <p>First name: Regina</p>
+                        <p>Last name: Cooper</p>
+                        <p>
+                          Address: 993 E. Brewer St.
+                          Holtsville
+                        </p>
+                      </div>
+
+                      <div>
+                        <p>State/Region: New York</p>
+                        <p>City: New York</p>
+                        <p>Country: United States</p>
+                      </div>
+
+                      <div>
+                        <p>Phone: +1(070) 4567-8800</p>
+                        <p>Email: example@mail.com</p>
+                        <p>Postcode: 11742</p>
+                      </div>
+                    </div>
+                  )}
+                </section>
+              </div>
+            )}
+
+            {detailTab === "PRODUCTS" && (
+              <div className="order-products-content">
+                <div className="order-detail-title-row">
+                  <h2>Products</h2>
+
+                  <button
+                    type="button"
+                    className="detail-export-button"
+                    onClick={() =>
+                      handleExport("Products")
+                    }
+                  >
+                    <FaDownload />
+                    Export
+                    <FaChevronDown />
+                  </button>
+                </div>
+
+                <table className="order-products-table">
+                  <thead>
+                    <tr>
+                      <th>PRODUCT</th>
+                      <th>PRICE</th>
+                      <th>QUANTITY</th>
+                      <th>TOTAL</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.name}>
+                        <td>{product.name}</td>
+                        <td>{product.price}</td>
+                        <td>{product.quantity}</td>
+                        <td>{product.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {detailTab === "INVOICE" && (
+              <div className="invoice-content">
+                <div className="order-detail-title-row">
+                  <h2>Invoice</h2>
+
+                  <button
+                    type="button"
+                    className="detail-export-button"
+                    onClick={() =>
+                      handleExport("Invoice")
+                    }
+                  >
+                    <FaDownload />
+                    Export
+                    <FaChevronDown />
+                  </button>
+                </div>
+
+                <div className="invoice-company-row">
+                  <div className="invoice-number-card">
+                    <strong>INVOICE</strong>
+                    <span>{selectedOrder.id}</span>
+                  </div>
+
+                  <div className="invoice-company-info">
+                    <strong>ROCKET INC.</strong>
+                    <p>
+                      Russell st. 50, Boston, MA, USA,
+                      02199
+                    </p>
+                    <p>+1 (070) 123-4567</p>
+                    <p>info@rocket.com</p>
+                    <p>www.rocketboard.com</p>
+                  </div>
+
+                  <div className="invoice-brand">
+                    <span>September 12, 2019</span>
+
+                    <strong>🌼 FLOWER</strong>
+                  </div>
+                </div>
+
+                <table className="invoice-table">
+                  <thead>
+                    <tr>
+                      <th>PRODUCT</th>
+                      <th>PRICE</th>
+                      <th>QUANTITY</th>
+                      <th>TOTAL</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.name}>
+                        <td>{product.name}</td>
+                        <td>{product.price}</td>
+                        <td>{product.quantity}</td>
+                        <td>{product.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="invoice-summary">
+                  <div>
+                    <span>SUBTOTAL</span>
+                    <strong>$6.600</strong>
+                  </div>
+
+                  <div>
+                    <span>TAX (20%)</span>
+                    <strong>$7.920</strong>
+                  </div>
+
+                  <div>
+                    <span>DISCOUNT</span>
+                    <strong>-$792</strong>
+                  </div>
+
+                  <div className="invoice-total">
+                    <span>TOTAL</span>
+                    <strong>$7.128</strong>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
     </div>
   );
 }
-
-function ExportButton({ exportOpen, setExportOpen }) {
-  return (
-    <div style={{ position: "relative" }}>
-      <button
-        style={styles.exportButton}
-        onClick={() => setExportOpen(!exportOpen)}
-      >
-        ⇩ Export ▾
-      </button>
-
-      {exportOpen && (
-        <div style={styles.exportMenu}>
-          {["Print", "Excel", "PDF", "CSV"].map((item) => (
-            <div
-              key={item}
-              style={styles.exportItem}
-              onClick={() => setExportOpen(false)}
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function OrderDetails({ order }) {
-  return (
-    <>
-      <h2>
-        Orders <span style={styles.muted}>{order.id}</span>
-      </h2>
-
-      <h3>Customer</h3>
-
-      <div style={styles.customerRow}>
-        <div style={styles.avatar}>
-          {order.customer.charAt(0)}
-        </div>
-
-        <div>
-          <strong>{order.customer}</strong>
-          <p style={styles.muted}>example@mail.com</p>
-        </div>
-
-        <span>+1(000) 4567-8800</span>
-
-        <span>New York, NY</span>
-      </div>
-
-      <div style={styles.detailsGrid}>
-        <section>
-          <h3>Payment Method</h3>
-
-          <select style={styles.input}>
-            <option>{order.payment}</option>
-            <option>Credit Card</option>
-            <option>PayPal</option>
-          </select>
-
-          <p style={styles.muted}>
-            Transaction ID: 00001-1812
-          </p>
-
-          <p>Amount: {order.total}</p>
-        </section>
-
-        <section>
-          <h3>Shipping Method</h3>
-
-          <select style={styles.input}>
-            <option>Courier</option>
-            <option>Express</option>
-          </select>
-
-          <p style={styles.muted}>
-            Tracking Code: F-09245-5
-          </p>
-
-          <p>Date: {order.date}</p>
-        </section>
-
-        <section>
-          <h3>Fulfillment Status</h3>
-
-          <select style={styles.input}>
-            <option>Delivered</option>
-            <option>Processing</option>
-          </select>
-        </section>
-
-        <section>
-          <h3>Payment Status</h3>
-
-          <select style={styles.input}>
-            <option>Paid</option>
-            <option>Pending</option>
-          </select>
-        </section>
-      </div>
-
-      <div style={styles.address}>
-        <h3>Billing address</h3>
-
-        <p>First name: Regina</p>
-        <p>Last name: Cooper</p>
-        <p>Address: 001 E. Brown St. Holtsville</p>
-        <p>State/Region: New York</p>
-        <p>Country: United States</p>
-      </div>
-
-      <div style={styles.address}>
-        <h3>Shipping address</h3>
-
-        <p>New York, United States</p>
-      </div>
-    </>
-  );
-}
-
-function Products({ onProductClick }) {
-  return (
-    <>
-      <h2>Products</h2>
-
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>PRODUCT</th>
-            <th>PRICE</th>
-            <th>QUANTITY</th>
-            <th>TOTAL</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.name}>
-              <td
-                style={styles.orderId}
-                onClick={onProductClick}
-              >
-                {product.name}
-              </td>
-
-              <td>{product.price}</td>
-              <td>{product.quantity}</td>
-              <td>{product.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
-  );
-}
-
-function Invoice({ order }) {
-  return (
-    <>
-      <div style={styles.invoiceHeader}>
-        <div style={styles.invoiceBox}>
-          <strong>INVOICE</strong>
-          <p>{order.id}</p>
-        </div>
-
-        <div>
-          <strong>SECRET INC.</strong>
-          <p style={styles.muted}>
-            New York, NY, USA
-          </p>
-          <p style={styles.muted}>
-            info@secret.com
-          </p>
-        </div>
-
-        <div>
-          <p>SEPTEMBER 12, 2019</p>
-          <h3>FLOWER</h3>
-        </div>
-      </div>
-
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th>PRODUCT</th>
-            <th>PRICE</th>
-            <th>QUANTITY</th>
-            <th>TOTAL</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.name}>
-              <td>{product.name}</td>
-              <td>{product.price}</td>
-              <td>{product.quantity}</td>
-              <td>{product.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div style={styles.invoiceTotal}>
-        <p>SUBTOTAL &nbsp; $6,600</p>
-        <p>TAX (20%) &nbsp; $1,320</p>
-        <p>DISCOUNT &nbsp; -$800</p>
-        <h3>TOTAL &nbsp; $7,120</h3>
-      </div>
-    </>
-  );
-}
-
-function Status({ status }) {
-  const statusStyles = {
-    Shipped: {
-      background: "#ecfdf5",
-      color: "#16a34a",
-    },
-    Processing: {
-      background: "#fff7ed",
-      color: "#d97706",
-    },
-    Cancelled: {
-      background: "#fef2f2",
-      color: "#ef4444",
-    },
-  };
-
-  return (
-    <span
-      style={{
-        ...styles.status,
-        ...(statusStyles[status] || statusStyles.Processing),
-      }}
-    >
-      {status}
-    </span>
-  );
-}
-
-function Spec({ name, value }) {
-  return (
-    <div style={styles.spec}>
-      <span>{name}</span>
-      <strong>{value}</strong>
-    </div>
-  );
-}
-
-const styles = {
-  page: {
-    padding: "25px",
-    minHeight: "100vh",
-    background: "#f5f7f6",
-  },
-
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-
-  title: {
-    margin: 0,
-  },
-
-  tabs: {
-    display: "flex",
-    gap: "15px",
-    marginTop: "20px",
-  },
-
-  tab: {
-    border: "none",
-    background: "transparent",
-    padding: "10px",
-    cursor: "pointer",
-  },
-
-  exportButton: {
-    background: "#fff",
-    border: "1px solid #ddd",
-    padding: "10px 16px",
-    borderRadius: "6px",
-    cursor: "pointer",
-  },
-
-  exportMenu: {
-    position: "absolute",
-    right: 0,
-    top: "45px",
-    width: "130px",
-    background: "#fff",
-    boxShadow: "0 8px 25px rgba(0,0,0,.15)",
-    zIndex: 50,
-  },
-
-  exportItem: {
-    padding: "11px 15px",
-    borderBottom: "1px solid #eee",
-    cursor: "pointer",
-  },
-
-  card: {
-    background: "#fff",
-    padding: "20px",
-    marginTop: "20px",
-    borderRadius: "8px",
-  },
-
-  toolbar: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginBottom: "20px",
-  },
-
-  search: {
-    width: "70%",
-    padding: "11px",
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-  },
-
-  actionButton: {
-    padding: "10px 18px",
-    border: "1px solid #ddd",
-    background: "#fff",
-    borderRadius: "5px",
-  },
-
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-    textAlign: "left",
-  },
-
-  tableRow: {
-    borderBottom: "1px solid #eee",
-  },
-
-  orderId: {
-    color: "#555",
-    cursor: "pointer",
-    padding: "15px 5px",
-  },
-
-  status: {
-    padding: "5px 10px",
-    borderRadius: "15px",
-    fontSize: "12px",
-  },
-
-  pagination: {
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "20px",
-    color: "#888",
-  },
-
-  activePage: {
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "8px 12px",
-    borderRadius: "5px",
-  },
-
-  pageButton: {
-    border: "none",
-    background: "transparent",
-    padding: "8px 12px",
-  },
-
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.2)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 200,
-  },
-
-  modal: {
-    width: "850px",
-    maxWidth: "90%",
-    maxHeight: "90vh",
-    overflowY: "auto",
-    background: "#fff",
-    borderRadius: "8px",
-    position: "relative",
-  },
-
-  close: {
-    position: "absolute",
-    right: "15px",
-    top: "12px",
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: "18px",
-  },
-
-  modalTabs: {
-    display: "flex",
-    padding: "0 25px",
-    borderBottom: "1px solid #eee",
-  },
-
-  modalTab: {
-    border: "none",
-    background: "transparent",
-    padding: "18px 12px",
-    cursor: "pointer",
-    fontSize: "11px",
-  },
-
-  modalBody: {
-    padding: "25px",
-  },
-
-  muted: {
-    color: "#888",
-    fontSize: "13px",
-  },
-
-  customerRow: {
-    display: "grid",
-    gridTemplateColumns: "50px 1fr 1fr 1fr",
-    alignItems: "center",
-    gap: "15px",
-    padding: "15px 0",
-  },
-
-  avatar: {
-    width: "42px",
-    height: "42px",
-    borderRadius: "50%",
-    background: "#ef8b72",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  detailsGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "20px",
-  },
-
-  input: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-    boxSizing: "border-box",
-  },
-
-  address: {
-    borderTop: "1px solid #eee",
-    marginTop: "20px",
-    paddingTop: "10px",
-  },
-
-  invoiceHeader: {
-    display: "grid",
-    gridTemplateColumns: "1fr 2fr 1fr",
-    gap: "30px",
-    marginBottom: "30px",
-  },
-
-  invoiceBox: {
-    background: "#ef6f61",
-    color: "#fff",
-    padding: "20px",
-  },
-
-  invoiceTotal: {
-    textAlign: "right",
-    marginTop: "25px",
-  },
-
-  productOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,.25)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 300,
-  },
-
-  productModal: {
-    width: "800px",
-    maxWidth: "90%",
-    background: "#fff",
-    padding: "30px",
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "30px",
-    position: "relative",
-  },
-
-  productImage: {
-    background: "#f5f5f5",
-    minHeight: "400px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "60px",
-  },
-
-  productInfo: {
-    padding: "20px",
-  },
-
-  label: {
-    display: "block",
-    color: "#777",
-    fontSize: "13px",
-    margin: "15px 0 7px",
-  },
-
-  quantity: {
-    display: "flex",
-    gap: "15px",
-    alignItems: "center",
-  },
-
-  cartButton: {
-    width: "100%",
-    background: "#16a34a",
-    color: "#fff",
-    border: "none",
-    padding: "12px",
-    borderRadius: "5px",
-    cursor: "pointer",
-  },
-
-  spec: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "12px 0",
-    borderBottom: "1px solid #eee",
-  },
-};
 
 export default EcommerceOrders;

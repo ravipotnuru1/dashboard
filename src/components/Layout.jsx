@@ -1,33 +1,45 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
+
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
+import "./Layout.css";
+
 function Layout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#f5f7fb",
-      }}
-    >
-      <Sidebar />
-
+    <div className="dashboard-layout">
       <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-        }}
+        className={`layout-sidebar ${
+          sidebarOpen ? "sidebar-open" : ""
+        }`}
       >
-        <Header />
+        <Sidebar closeSidebar={closeSidebar} />
+      </div>
 
-        <main
-          style={{
-            padding: "24px",
-            flex: 1,
-          }}
-        >
+      {sidebarOpen && (
+        <button
+          type="button"
+          className="sidebar-mobile-overlay"
+          onClick={closeSidebar}
+          aria-label="Close sidebar"
+        />
+      )}
+
+      <div className="layout-content">
+        <Header toggleSidebar={toggleSidebar} />
+
+        <main className="layout-main">
           <Outlet />
         </main>
       </div>

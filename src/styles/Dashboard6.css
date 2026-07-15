@@ -1,0 +1,632 @@
+* {
+  box-sizing: border-box;
+}
+
+.dashboard6 {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  padding: 24px;
+  background: #f7f8f8;
+  color: #29302e;
+  overflow-x: hidden;
+}
+
+.dashboard6-layout {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 22px;
+}
+
+.dashboard6-main,
+.dashboard6-right {
+  min-width: 0;
+}
+
+/* ================= MONEY CARDS ================= */
+
+.dashboard6-money-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.dashboard6-money-card {
+  min-width: 0;
+  min-height: 110px;
+  padding: 20px;
+  background: #fff;
+  border: 1px solid #edf0ef;
+  border-radius: 7px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard6-money-card span {
+  color: #9ba3a0;
+  font-size: 12px;
+}
+
+.dashboard6-money-card h2 {
+  margin: 6px 0 0;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.dashboard6-arrow {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard6-arrow.income {
+  color: #239744;
+  background: #eaf6ed;
+}
+
+.dashboard6-arrow.spent {
+  color: #55c7b7;
+  background: #eaf9f7;
+}
+
+.dashboard6-progress {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 14px;
+  height: 3px;
+  border-radius: 10px;
+  background: #edf1ef;
+  overflow: hidden;
+}
+
+.dashboard6-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 10px;
+}
+
+.income-progress i {
+  width: 68%;
+  background: #239744;
+}
+
+.spent-progress i {
+  width: 45%;
+  background: #55c7b7;
+}
+
+/* ================= BALANCE ================= */
+
+.dashboard6-balance-card,
+.dashboard6-list-card,
+.dashboard6-right-section {
+  background: #fff;
+  border: 1px solid #edf0ef;
+  border-radius: 7px;
+}
+
+.dashboard6-balance-card {
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.dashboard6-section-header,
+.dashboard6-list-title,
+.dashboard6-right-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard6-section-header h3,
+.dashboard6-list-title h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.dashboard6-section-header button {
+  border: 1px solid #e9edeb;
+  background: #fff;
+  color: #737c79;
+  padding: 8px 11px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.dashboard6-balance-values {
+  display: flex;
+  gap: 55px;
+  margin: 30px 0 20px;
+}
+
+.dashboard6-balance-values > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dashboard6-balance-icon {
+  width: 43px;
+  height: 43px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard6-balance-icon.income {
+  background: #eaf6ed;
+  color: #239744;
+}
+
+.dashboard6-balance-icon.spent {
+  background: #eaf9f7;
+  color: #55c7b7;
+}
+
+.dashboard6-balance-values h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.dashboard6-balance-values span {
+  color: #9ba3a0;
+  font-size: 11px;
+}
+
+/* ================= CHART ================= */
+
+.dashboard6-chart {
+  width: 100%;
+  height: 290px;
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.dashboard6-chart-labels {
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #a0a7a5;
+  font-size: 10px;
+}
+
+.dashboard6-chart-content {
+  min-width: 0;
+  height: 290px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard6-grid-lines {
+  position: absolute;
+  inset: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.dashboard6-grid-lines i {
+  width: 100%;
+  height: 1px;
+  background: #edf0ef;
+}
+
+.dashboard6-chart-content svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 250px;
+}
+
+.dashboard6-chart-fill {
+  fill: url(#dashboard6Fill);
+}
+
+.dashboard6-chart-line {
+  fill: none;
+  stroke: #239744;
+  stroke-width: 2;
+}
+
+.dashboard6-days {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  color: #9da5a2;
+  font-size: 10px;
+}
+
+/* ================= BOTTOM LISTS ================= */
+
+.dashboard6-bottom {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.dashboard6-list-card {
+  padding: 20px;
+  min-width: 0;
+}
+
+.dashboard6-list-title {
+  margin-bottom: 14px;
+}
+
+.dashboard6-list-title svg {
+  color: #9ba3a0;
+}
+
+.dashboard6-list-row,
+.dashboard6-contact-row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid #f0f2f1;
+}
+
+.dashboard6-avatar,
+.dashboard6-payment-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard6-avatar {
+  background: #edf6f0;
+  color: #239744;
+  font-weight: 600;
+}
+
+.dashboard6-payment-icon {
+  background: #eaf9f7;
+  color: #55c7b7;
+  font-size: 17px;
+}
+
+.dashboard6-row-info {
+  flex: 1;
+  min-width: 0;
+  margin-left: 11px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard6-row-info strong {
+  overflow: hidden;
+  color: #414947;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dashboard6-row-info span,
+.dashboard6-row-value span {
+  margin-top: 4px;
+  color: #9ca4a1;
+  font-size: 9px;
+}
+
+.dashboard6-row-value {
+  flex-shrink: 0;
+  margin-left: 8px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard6-row-value strong,
+.dashboard6-payment-value {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dashboard6-positive {
+  color: #239744;
+}
+
+.dashboard6-negative {
+  color: #e98b92;
+}
+
+.dashboard6-payment-value {
+  color: #606966;
+}
+
+/* ================= RIGHT SIDE ================= */
+
+.dashboard6-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard6-right-section {
+  padding: 20px;
+}
+
+.dashboard6-right-title {
+  margin-bottom: 18px;
+}
+
+.dashboard6-right-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.dashboard6-right-title button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #eaf6ed;
+  color: #239744;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ================= BANK CARD ================= */
+
+.dashboard6-bank-card {
+  min-height: 175px;
+  padding: 22px;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #1e9b48, #37b965);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 10px 25px rgba(35, 151, 68, 0.18);
+}
+
+.dashboard6-bank-top,
+.dashboard6-bank-bottom {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.dashboard6-bank-top span,
+.dashboard6-bank-bottom span {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 10px;
+}
+
+.dashboard6-bank-top h2 {
+  margin: 6px 0 0;
+  font-size: 23px;
+  font-weight: 500;
+}
+
+.dashboard6-bank-top > strong {
+  font-size: 19px;
+  font-style: italic;
+}
+
+.dashboard6-bank-bottom > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dashboard6-bank-bottom strong {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.dashboard6-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.dashboard6-dots i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d6dcda;
+}
+
+.dashboard6-dots i.active {
+  background: #239744;
+}
+
+.dashboard6-contact-row > svg {
+  flex-shrink: 0;
+  color: #a0a7a5;
+  font-size: 12px;
+}
+
+/* ================= MODAL ================= */
+
+.dashboard6-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  padding: 20px;
+  background: rgba(25, 31, 29, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard6-modal {
+  width: 100%;
+  max-width: 470px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 26px;
+  border-radius: 9px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard6-modal-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.dashboard6-modal-title h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 500;
+}
+
+.dashboard6-modal-title button {
+  border: none;
+  background: transparent;
+  color: #818986;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.dashboard6-modal label {
+  margin: 10px 0 7px;
+  color: #68716e;
+  font-size: 11px;
+}
+
+.dashboard6-modal input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e3e8e6;
+  border-radius: 6px;
+  outline: none;
+  color: #404845;
+}
+
+.dashboard6-modal input:focus {
+  border-color: #239744;
+}
+
+.dashboard6-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.dashboard6-form-grid > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard6-submit {
+  width: 100%;
+  height: 43px;
+  margin-top: 22px;
+  border: none;
+  border-radius: 6px;
+  background: #239744;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.dashboard6-submit:hover {
+  background: #1c8139;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1100px) {
+  .dashboard6-layout {
+    grid-template-columns: minmax(0, 1fr) 260px;
+  }
+
+  .dashboard6-bottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 850px) {
+  .dashboard6 {
+    padding: 16px;
+  }
+
+  .dashboard6-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard6-right {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard6 {
+    padding: 10px;
+  }
+
+  .dashboard6-money-row,
+  .dashboard6-bottom,
+  .dashboard6-right,
+  .dashboard6-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard6-balance-values {
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .dashboard6-balance-card,
+  .dashboard6-list-card,
+  .dashboard6-right-section {
+    padding: 15px;
+  }
+
+  .dashboard6-chart {
+    height: 240px;
+  }
+
+  .dashboard6-chart-content {
+    height: 240px;
+  }
+
+  .dashboard6-chart-content svg,
+  .dashboard6-chart-labels {
+    height: 205px;
+  }
+
+  .dashboard6-grid-lines {
+    bottom: 35px;
+  }
+}

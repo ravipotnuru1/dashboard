@@ -1,0 +1,121 @@
+.not-found-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #eefafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.not-found-page::before,
+.not-found-page::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 120px solid rgba(255, 255, 255, 0.25);
+}
+
+.not-found-page::before {
+  width: 650px;
+  height: 650px;
+}
+
+.not-found-page::after {
+  width: 350px;
+  height: 350px;
+}
+
+.not-found-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 20px;
+}
+
+.not-found-content h1 {
+  margin: 0;
+  color: #1f9d45;
+  font-size: clamp(120px, 18vw, 230px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 10px;
+}
+
+.not-found-content h2 {
+  margin: 25px 0 12px;
+  color: #30343b;
+  font-size: clamp(26px, 4vw, 48px);
+  font-weight: 600;
+}
+
+.not-found-content p {
+  color: #8b929c;
+  font-size: 14px;
+  margin-bottom: 35px;
+}
+
+.not-found-content button {
+  border: none;
+  background: #1f9d45;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.not-found-content button:hover {
+  background: #17863a;
+  transform: translateY(-2px);
+}
+
+/* TABLET */
+
+@media (max-width: 900px) {
+  .not-found-page::before {
+    width: 500px;
+    height: 500px;
+    border-width: 90px;
+  }
+
+  .not-found-page::after {
+    width: 280px;
+    height: 280px;
+    border-width: 80px;
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+  .not-found-content h1 {
+    font-size: 110px;
+    letter-spacing: 4px;
+  }
+
+  .not-found-content h2 {
+    font-size: 25px;
+    margin-top: 20px;
+  }
+
+  .not-found-content p {
+    font-size: 12px;
+    line-height: 1.6;
+    max-width: 300px;
+  }
+
+  .not-found-page::before {
+    width: 320px;
+    height: 320px;
+    border-width: 60px;
+  }
+
+  .not-found-page::after {
+    width: 180px;
+    height: 180px;
+    border-width: 50px;
+  }
+}
