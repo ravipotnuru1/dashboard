@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 
 import {
   FaThLarge,
@@ -18,9 +19,18 @@ import {
 import "./Sidebar.css";
 
 function Sidebar() {
+  const location = useLocation();
+
+  const [ecommerceOpen, setEcommerceOpen] = useState(
+    location.pathname.startsWith("/ecommerce")
+  );
+
   const openChat = () => {
     window.dispatchEvent(new Event("open-chat"));
   };
+
+  const ecommerceActive =
+    location.pathname.startsWith("/ecommerce");
 
   return (
     <aside className="figma-sidebar">
@@ -46,9 +56,7 @@ function Sidebar() {
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaThLarge />
@@ -57,28 +65,73 @@ function Sidebar() {
 
         {/* E-COMMERCE */}
 
-        <NavLink
-          to="/ecommerce"
-          className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+        <button
+          type="button"
+          className={`sidebar-link sidebar-menu-button ${
+            ecommerceActive ? "active" : ""
+          }`}
+          onClick={() =>
+            setEcommerceOpen((previous) => !previous)
           }
         >
-          <FaShoppingBag />
-          <span>E-Commerce</span>
+          <div className="sidebar-link-left">
+            <FaShoppingBag />
+            <span>E-Commerce</span>
+          </div>
 
-          <FaChevronDown className="sidebar-arrow" />
-        </NavLink>
+          <FaChevronDown
+            className={`sidebar-arrow ${
+              ecommerceOpen ? "rotate" : ""
+            }`}
+          />
+        </button>
+
+        {/* E-COMMERCE SUBMENU */}
+
+        {ecommerceOpen && (
+          <div className="sidebar-submenu">
+            <NavLink
+              to="/ecommerce"
+              end
+              className={({ isActive }) =>
+                `sidebar-sub-link ${
+                  isActive ? "active" : ""
+                }`
+              }
+            >
+              Products
+            </NavLink>
+
+            <NavLink
+              to="/ecommerce-orders"
+              className={({ isActive }) =>
+                `sidebar-sub-link ${
+                  isActive ? "active" : ""
+                }`
+              }
+            >
+              Orders
+            </NavLink>
+
+            <NavLink
+              to="/ecommerce/customer-care"
+              className={({ isActive }) =>
+                `sidebar-sub-link ${
+                  isActive ? "active" : ""
+                }`
+              }
+            >
+              Customer Care
+            </NavLink>
+          </div>
+        )}
 
         {/* CALENDAR */}
 
         <NavLink
           to="/calendar"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaCalendarAlt />
@@ -90,15 +143,11 @@ function Sidebar() {
         <NavLink
           to="/mail"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaEnvelope />
-
           <span>Mail</span>
-
           <span className="mail-badge">8</span>
         </NavLink>
 
@@ -118,9 +167,7 @@ function Sidebar() {
         <NavLink
           to="/tasks"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaTasks />
@@ -132,9 +179,7 @@ function Sidebar() {
         <NavLink
           to="/projects"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaProjectDiagram />
@@ -146,9 +191,7 @@ function Sidebar() {
         <NavLink
           to="/file-manager"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaFolder />
@@ -160,9 +203,7 @@ function Sidebar() {
         <NavLink
           to="/notes"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaStickyNote />
@@ -174,9 +215,7 @@ function Sidebar() {
         <NavLink
           to="/contacts"
           className={({ isActive }) =>
-            `sidebar-link ${
-              isActive ? "active" : ""
-            }`
+            `sidebar-link ${isActive ? "active" : ""}`
           }
         >
           <FaAddressBook />

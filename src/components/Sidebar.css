@@ -11,6 +11,8 @@
   font-family: inherit;
 }
 
+/* ================= LOGO ================= */
+
 .sidebar-logo {
   height: 72px;
   display: flex;
@@ -39,6 +41,8 @@
   justify-content: center;
   font-size: 15px;
 }
+
+/* ================= SEARCH ================= */
 
 .sidebar-search {
   height: 36px;
@@ -70,6 +74,8 @@
   color: #8d939a;
 }
 
+/* ================= MENU TITLE ================= */
+
 .sidebar-menu-title {
   margin: 0 10px 10px;
   color: #a0a5aa;
@@ -77,6 +83,8 @@
   font-weight: 500;
   letter-spacing: 0.4px;
 }
+
+/* ================= NAV ================= */
 
 .sidebar-nav {
   display: flex;
@@ -100,8 +108,11 @@
   padding: 0 12px;
   box-sizing: border-box;
 
+  font-family: inherit;
   font-size: 12px;
   font-weight: 500;
+  text-align: left;
+
   cursor: pointer;
   position: relative;
 
@@ -140,7 +151,82 @@
   color: #28382b;
 }
 
-/* ================= MAIL RED BADGE ================= */
+/* ================= MENU BUTTON ================= */
+
+.sidebar-menu-button {
+  justify-content: space-between;
+}
+
+.sidebar-link-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* ================= ECOMMERCE ARROW ================= */
+
+.sidebar-arrow {
+  width: 10px !important;
+  min-width: 10px !important;
+  height: 10px !important;
+  margin-left: auto;
+  transition: transform 0.25s ease;
+}
+
+.sidebar-arrow.rotate {
+  transform: rotate(180deg);
+}
+
+/* ================= ECOMMERCE SUBMENU ================= */
+
+.sidebar-submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0 5px;
+  padding-left: 38px;
+}
+
+.sidebar-sub-link {
+  min-height: 32px;
+  padding: 8px 10px;
+
+  display: flex;
+  align-items: center;
+
+  border-radius: 5px;
+
+  color: #777e85;
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 400;
+
+  transition: 0.2s ease;
+}
+
+.sidebar-sub-link:hover {
+  color: #1b8f3b;
+  background: #f3f9ef;
+}
+
+.sidebar-sub-link.active {
+  color: #1b9d42;
+  font-weight: 600;
+  background: #f1faeb;
+}
+
+.sidebar-sub-link.active::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #1b9d42;
+}
+
+/* ================= MAIL BADGE ================= */
 
 .mail-badge {
   width: 18px !important;
@@ -171,12 +257,15 @@
   color: #ffffff !important;
 }
 
-/* ================= ARROW ================= */
+/* ================= CHAT BUTTON ================= */
 
-.sidebar-arrow {
-  width: 10px !important;
-  height: 10px !important;
-  margin-left: auto;
+.sidebar-chat-button {
+  appearance: none;
+  font-family: inherit;
+}
+
+.sidebar-chat-button:focus {
+  outline: none;
 }
 
 /* ================= RESPONSIVE ================= */
